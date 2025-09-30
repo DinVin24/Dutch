@@ -9,10 +9,23 @@ class Card:
     def __init__(self, value, suit):
         self.value = value
         self.suit = suit
+    def print(self):
+        print(self.value, self.suit)
 
 class Player:
     def __init__(self):
         self.cards=[]
+    def deal(self, d):
+        for i in range(4):
+            self.cards.append(d.pop())
+    def showCards(self,i=None):
+        if i is None:
+            for card in self.cards:
+                card.print()
+        else:
+            for x in i:
+                self.cards[x].print()
+        print()
 
 deck = [Card(value,suit) for value in values for suit in suits ]
 random.shuffle(deck)
@@ -20,18 +33,14 @@ random.shuffle(deck)
 NrPlayers = 4
 Players = [Player() for i in range(NrPlayers)]
 for p in Players:
-    for i in range(4):
-        p.cards.append(deck.pop(0))
+    p.deal(deck)
 
 for p in Players:
-    for card in p.cards:
-        print(card.value, card.suit)
-    print()
+    p.showCards()
 
 for i in range(NrPlayers):
     choice = [int (x) - 1 for x in input(f"Player {i+1}, choose 2 cards to see:\n1 2 3 4\n").split()]
-    print(Players[i].cards[choice[0]].value, Players[i].cards[choice[0]].suit)
-    print(Players[i].cards[choice[1]].value, Players[i].cards[choice[1]].suit)
+    Players[i].showCards(choice)
 
 
 
@@ -40,14 +49,6 @@ for i in range(NrPlayers):
 # while GameStatus == 1:
 #     for i in range(NrPlayers):
 #         print(deck[0].value, deck[0].suit)
-#
-
-
-# for p in Players:
-#     for card in p.cards:
-#         print(card.value, card.suit)
-#     print()
-#
 #
 # for card in deck:
 #     print(card.value, card.suit)
