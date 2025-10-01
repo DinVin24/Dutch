@@ -15,12 +15,13 @@ class Card:
         self.value, c.value = c.value, self.value
         self.suit, c.suit = c.suit, self.suit
 
-NrPlayers = 4
+NrPlayers = 2
 
 class Player:
     def __init__(self):
         self.cards=[]
         self.score=0
+        self.dutch = False
     def deal(self, d):
         for i in range(4):
             self.cards.append(d.pop())
@@ -52,20 +53,49 @@ class Player:
         p = int(input("Choose the player whose card you want to reveal\n"))
         c = int(input("Choose the card you want to reveal\n"))
         print(P[p-1].cards[c-1])
-    #TODO: JUMPING IN
-    # DECLARING DUTCH
-    # WINNING AND LOSING I GUESS
+    def jumpingIn(self, value, deck):
+        c = int(input("Choose the card you're jumping in with: 1 2 3 4\n"))
+        c-=1
+        if self.cards[c].value == value:
+            return self.cards.pop(c)
+        else:
+            print("Hah, wrong! Pull an extra card, loser!")
+            self.cards.append(deck.pop())
+        return None
+
+    def checkSpecialCards(self, card, Players):
+        if card.value == 'jack':
+            self.swapCards(Players)
+        elif card.value == 'queen':
+            self.revealCard(Players)
+
     def calculateScore(self):
+        self.score = 0
         for card in self.cards:
             if card.value == 'king' and card.suit == 'diamond':
                 continue
             self.score += values.index(card.value) + 1
 
-def checkSpecialCards(card, p, Players):
-    if card.value == 'jack':
-        p.swapCards(Players)
-    elif card.value == 'queen':
-        p.revealCard(Players)
+    def checkDutch(self):
+        if self.dutch == True:
+            return True
+        c = input("Press D to declare Dutch, C to continue\n")
+        if c == 'D':
+            self.dutch = True
+        return False
+
+def endGame(Players):
+    minscore = 100
+    for p in Players:
+        print(p.score)
+        p.showCards()
+        minscore = min(minscore, p.score)
+    if minscore > 7:
+        print("Nobody won!")
+        return
+    for p in Players:
+        if p.score == minscore:
+            print(f"Player {Players.index(p)+1} won!")
 
 
 deck = [Card(value,suit) for value in values for suit in suits ]
@@ -77,13 +107,13 @@ for p in Players:
     p.calculateScore()
 
 for p in Players:
-    p.showCards()
     print(p.score)
-    print()
+    p.showCards()
 
-for i in range(NrPlayers):
-    choice = [int (x) - 1 for x in input(f"Player {i+1}, choose 2 cards to see:\n1 2 3 4\n").split()]
-    Players[i].showCards(choice)
+
+# for i in range(NrPlayers):
+#     choice = [int (x) - 1 for x in input(f"Player {i+1}, choose 2 cards to see:\n1 2 3 4\n").split()]
+#     Players[i].showCards(choice)
 
 GameStatus = 1
 pile = []
@@ -91,8 +121,18 @@ while GameStatus == 1:
     for p in Players:
         #pulling a card
         pile.append(p.pullCard(deck))
-        checkSpecialCards(pile[-1], p, Players)
-    GameStatus = 0
+        p.checkSpecialCards(pile[-1], Players)
+        c = input("Press space if you're jumping in, enter to skip\n")
+        if c == ' ':
+            jmp = p.jumpingIn(pile[-1].value,deck)
+            if jmp is not None:
+                pile.append(jmp)
+        p.calculateScore()
+        if p.checkDutch():
+            GameStatus = 0
+            endGame(Players)
+            break
+    # GameStatus = 0
 
 for c in pile:
     print(c)
