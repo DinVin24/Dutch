@@ -6,6 +6,9 @@ Functions = require "Functions"
 local players = {}
 local Deck = {}
 
+function love.mousepressed(x, y, button)
+    handleMousePressed(x, y, button, players[1])
+end
 
 function love.load()
     Card.loadSpriteSheet("PNG/cardsLarge_tilemap.png")
@@ -19,7 +22,7 @@ function love.load()
     shuffle(Deck)
 
     table.insert(players, Player:new("Daniel"))
-    table.insert(players, Player:new("Bogdan"))
+    --table.insert(players, Player:new("Bogdan"))
 
     for _, p in ipairs(players) do
         p:deal(Deck, 4)
@@ -30,13 +33,12 @@ function love.load()
 end
 
 function love.update(dt)
-    
+    players[1]:updateCards()
 end
 
 function love.draw()
     drawDeck(Deck)
     players[1]:drawHand()
-
 end
 
 

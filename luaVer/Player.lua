@@ -9,6 +9,8 @@ function Player:new(name)
     self.hand = {}
     self.score = 0
     self.dutch = false
+    self.cardTimer = 0
+    self.seeCards = 2
     return self
 end
 
@@ -42,8 +44,29 @@ function Player:drawHand(startX, startY, spacing)
     startY = startY or 600
     for i, card in ipairs(self.hand) do
         card:setPosition(startX + (i-1)*spacing, startY)
-        card.faceUp = false
         card:draw()
+    end
+end
+
+function Player:getCardAt(x, y)
+    for _, card in ipairs(self.hand) do
+        if x >= card.x and x <= card.x + Card.WIDTH and
+           y >= card.y and y <= card.y + Card.HEIGHT then
+            return card
+        end
+    end
+    return nil
+end
+
+function Player:updateCards()
+    if self.cardTimer <= 0 then
+        self.cardTimer = 0
+        for _, card in ipairs(self.hand) do
+            card.faceUp = false
+        end
+    else
+        self.cardTimer = self.cardTimer - 1
+        print(self.cardTimer)
     end
 end
 

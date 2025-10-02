@@ -44,7 +44,9 @@ function Card:setPosition(x, y)
     self.y = y
 end
 
-function Card:draw()
+function Card:draw(pozX,pozY)
+    self.x = pozX or self.x
+    self.y = pozY or self.y
     if not Card.sprite then
         error("Card sprite not loaded. Call Card.loadSpriteSheet() first!")
     end
