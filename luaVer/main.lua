@@ -1,132 +1,31 @@
 _G.love = require("love")
+Card = require "Card"
+Player = require "Player"
+Functions = require "Functions"
 
-cardSprite = {
-        tile = love.graphics.newImage("PNG/cardsLarge_tilemap.png"),
-        SPRITE_WIDTH = 909,
-        SPRITE_HEIGHT = 259,
-        CARD_WIDTH = 42,
-        CARD_HEIGHT = 60,
-        hPadding = 11,
-        vPadding = 2,
-        quads = {}
-    }
-    for row = 0, 3 do
-        for col = 0, 13 do
-            local x = col * (cardSprite.CARD_WIDTH + 2*cardSprite.hPadding +1 ) + cardSprite.hPadding
-            local y = row * (cardSprite.CARD_HEIGHT + 2*cardSprite.vPadding + 1) + cardSprite.vPadding
-
-            local quad = love.graphics.newQuad(x,y,cardSprite.CARD_WIDTH,cardSprite.CARD_HEIGHT,cardSprite.SPRITE_WIDTH,cardSprite.SPRITE_HEIGHT)
-            table.insert(cardSprite.quads,quad)
-        end
-    end
-
-local values = {"ace", "two", "three", "four", "five", "six",
-                "seven", "eight", "nine", "ten", "jack",
-                "queen", "king"}
-
-local suits = {"heart", "diamond", "club", "spade"}
-
-local Deck = {}
-local discard = {value = "king", suit = "diamond"}
-
-for _, value in ipairs(values) do
-    for _, suit in ipairs(suits) do
-        table.insert(Deck, {
-            value = value,
-            suit = suit,
-            faceUp = false
-        })
-    end
-end
-
-function shuffle (deck)
-    for i = #deck, 2, -1 do
-       local j = love.math.random(1, i)
-       deck[i], deck[j] = deck[j], deck[i] 
-    end
-end
-
-shuffle(Deck)
-
-function newPlayer(name)
-    local player = {
-        name = name or "PLAYER",
-        hand = {},
-        score = 0,
-        dutch = false
-    }
-    return player
-end
-
-function deal(player, deck, n)
-    for i = 1, n do
-        table.insert(player.hand, table.remove(deck))
-    end
-
-end
-
-function calculateScore(player)
-    player.score = 0
-    for i = 1, #player.hand do
-        if not(player.hand[i].value == "king" and player.hand[i].suit == "diamond") then
-            player.score = player.score + indexOf(values, player.hand[i].value)
-        end
-    end
-    return player.score
-end
-
-function indexOf(lista, element)
-    for i, v in ipairs(lista) do
-        if v == element then
-            return i
-        end
-    end
-    return nil
-end
-
-function showCards(player)
-    for i, card in ipairs(player.hand) do
-        print(card.value .. " of " .. card.suit)
-    end
-    print()
-end
-
-function drawCard(card,pozX,pozY)
-    local x = indexOf(values, card.value)
-    local y = indexOf(suits, card.suit) - 1
-    local i = y*14 + x
-    if card.faceUp == false then
-        i = 28
-    end
-    love.graphics.draw(cardSprite.tile, cardSprite.quads[i], pozX, pozY)
-
-end
-
-function drawPlayerCards(player)
-    for i, card in ipairs(player.hand) do
-        drawCard(player.hand[i], 510 + 50*i, 625)-- MAKE THESE PIXELS SCALABLE
-    end
-end
-
-function drawDeck()
-    for i, card in ipairs(Deck) do
-        drawCard(Deck[i], 900 - i*0.2, 360+i*0.1)-- MAKE THESE PIXELS SCALABLE
-    end
-end
-
-local NrPlayers = 2
 local players = {}
-table.insert(players, newPlayer("Daniel"))
-table.insert(players, newPlayer("Bogdan"))
+local Deck = {}
 
-for i=1, NrPlayers do
-    deal(players[i], Deck, 4)
-
-    print(players[i].name, calculateScore(players[i]))
-    showCards(players[i])
-end
 
 function love.load()
+    Card.loadSpriteSheet("PNG/cardsLarge_tilemap.png")
+
+    for _, value in ipairs(Card.values) do
+        for _, suit in ipairs(Card.suits) do
+            table.insert(Deck, Card:new(value, suit))
+        end
+    end
+
+    shuffle(Deck)
+
+    table.insert(players, Player:new("Daniel"))
+    table.insert(players, Player:new("Bogdan"))
+
+    for _, p in ipairs(players) do
+        p:deal(Deck, 4)
+        p:calculateScore()
+        p:showHand()
+    end
     
 end
 
@@ -135,15 +34,10 @@ function love.update(dt)
 end
 
 function love.draw()
-    drawDeck()
-    drawPlayerCards(players[1])
-   --for i, card in ipairs(Deck) do
-   --     love.graphics.print(card.value .. " of " .. card.suit, 20, i*15)
-   --end
+    drawDeck(Deck)
+    players[1]:drawHand()
 
 end
-
-
 
 
 --draw all cards:
