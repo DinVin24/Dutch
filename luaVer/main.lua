@@ -6,7 +6,7 @@ Functions = require "Functions"
 local players = {}
 local GameTable = {
     Deck = {},
-    discard = Card:new("king", "diamond", 598, 300, true),
+    discard = Card:new(nil, nil, 598, 300, true),
     pulled = nil
 }
 
@@ -57,7 +57,9 @@ function love.draw()
     drawDeck(GameTable.Deck)
     players[1]:drawHand()
     players[2]:drawHand(450, 20)
-    GameTable.discard:draw()
+    if GameTable.discard.value then
+        GameTable.discard:draw()
+    end
     if GameTable.pulled then
         GameTable.pulled:draw(700,450)
     end

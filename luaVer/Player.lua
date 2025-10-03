@@ -14,10 +14,10 @@ function Player:new(name)
     self.cardTimer = Player.CARDSECONDS
     self.seeCards = 2
     self.seeAnyCard = 0
+    self.swap = {false, nil, nil}
     self.turn = true
     self.pulledCard = nil
     self.jumpingIn = false
-    self.discardVal = nil
     return self
 end
 
@@ -96,12 +96,37 @@ function Player:revealCards(player, card)
     end
 end
 
+function Player:swapCards(card,players)
+    if self.swap[1] == true and self.swap[2] == nil then
+        self.swap[2] = card
+    elseif self.swap[1] == true and self.swap[3] == nil then
+        self.swap[3] = card
+        local x, y
+        print("gonna swap", self.swap[2].value, self.swap[3].value)
+        for i=1, #players do
+            if indexOf(players[i].hand,self.swap[2]) then
+                x = {i, indexOf(players[i].hand,self.swap[2])}
+            end
+            if indexOf(players[i].hand,self.swap[3]) then
+                y = {i, indexOf(players[i].hand,self.swap[3])}
+            end
+        end
+        players[x[1]].hand[x[2]].value, players[x[1]].hand[x[2]].suit = 
+        players[y[1]].hand[y[2]].value, players[y[1]].hand[y[2]].suit 
+
+
+        self.swap = {false, nil, nil}
+    end
+end
+
 function Player:checkSpecialCards(card)
     if card.used == false then
-        print("tryna see")
         if card.value == "queen" then
-            print("i can see")
             self.seeAnyCard = self.seeAnyCard + 1
+        end
+        if card.value == "jack" then
+            print("tryna swap 'em")
+            self.swap = {true}
         end
     end
 end

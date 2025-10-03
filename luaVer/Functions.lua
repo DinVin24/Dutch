@@ -21,8 +21,9 @@ function drawDeck(Deck)
     end
 end
 
-function clickedOwnCard(x,y,player,GameTable)
+function clickedOwnCard(x,y,Players,GameTable)
     -- i really don't like how i made this function...
+    player = Players[1]
     local clickedCard = player:getCardAt(x, y)
     if clickedCard then
         if player.seeCards > 0 or player.seeAnyCard > 0 then
@@ -61,6 +62,7 @@ function clickedOwnCard(x,y,player,GameTable)
             player.jumpingIn = false
 
         end
+        player:swapCards(clickedCard, Players)
         return clickedCard
     end
     return nil
@@ -80,6 +82,7 @@ function clickedOtherCard(x,y,players)
 
     if clickedCard then
         players[1]:revealCards(p, clickedCard)
+        players[1]:swapCards(clickedCard, players)
     end
 
 end
@@ -110,7 +113,7 @@ end
 
 function handleMousePressed(x, y, button, Players, GameTable)
     if button == 1 then
-        clickedOwnCard(x,y,Players[1],GameTable)
+        clickedOwnCard(x,y,Players,GameTable)
         
         clickedOtherCard(x,y,Players,GameTable)
 
