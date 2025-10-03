@@ -21,7 +21,7 @@ function drawDeck(Deck)
     end
 end
 
-function clickedOwnCard(x,y,player)
+function clickedOwnCard(x,y,player,discard)
     local clickedCard = player:getCardAt(x, y)
     if clickedCard then
         if player.seeCards > 0 then
@@ -32,6 +32,11 @@ function clickedOwnCard(x,y,player)
             if player.cardTimer <= 0 then
                 player.cardTimer = 160
             end
+        end
+        if player.pulledCard then
+            discard.value, discard.suit = clickedCard.value, clickedCard.suit
+            clickedCard.value, clickedCard.suit = player.pulledCard.value, player.pulledCard.suit
+            player.pulledCard = nil
         end
         return clickedCard
     end
@@ -56,16 +61,16 @@ function clickedPile(x,y,player,discard)
             return discard
         end
     end
-    return discard
+    return nil
 end
 
 function handleMousePressed(x, y, button, player, GameTable)
     if button == 1 then
-        clickedOwnCard(x,y,player)
+        clickedOwnCard(x,y,player,GameTable.discard)
 
         clickedDeck(x,y,player,GameTable.Deck)
 
-        GameTable.discard = clickedPile(x,y,player,GameTable.discard)
+        clickedPile(x,y,player,GameTable.discard)
 
     end
     return nil

@@ -28,7 +28,6 @@ function love.load()
 
     table.insert(players, Player:new("Daniel"))
     --table.insert(players, Player:new("Bogdan"))
-
     for _, p in ipairs(players) do
         p:deal(GameTable.Deck, 4)
         p:calculateScore()
