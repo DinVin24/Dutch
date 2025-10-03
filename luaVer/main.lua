@@ -10,7 +10,6 @@ local GameTable = {
     pulled = nil
 }
 
-
 function love.mousepressed(x, y, button)
     handleMousePressed(x, y, button, players, GameTable)
 end
@@ -22,10 +21,8 @@ end
 function love.load()
     Card.loadSpriteSheet("PNG/cardsLarge_tilemap.png")
 
-
     Card.WIDTH = math.floor(Card.WIDTH*2)
     Card.HEIGHT = math.floor(Card.HEIGHT*2)
-
 
     for _, value in ipairs(Card.values) do
         for _, suit in ipairs(Card.suits) do
