@@ -21,17 +21,52 @@ function drawDeck(Deck)
     end
 end
 
-function handleMousePressed(x, y, button, player)
-    if button == 1 then
-        local clickedCard = player:getCardAt(x, y)
-        if clickedCard and player.seeCards > 0 then
-            player.seeCards = player.seeCards -1
+function clickedOwnCard(x,y,player)
+    local clickedCard = player:getCardAt(x, y)
+    if clickedCard then
+        if player.seeCards > 0 then
+            if clickedCard.faceUp == false then
+                player.seeCards = player.seeCards -1
+            end
             clickedCard.faceUp = true
-            if player.cardTimer <=0 then
+            if player.cardTimer <= 0 then
                 player.cardTimer = 160
             end
-            return clickedCard
         end
+        return clickedCard
+    end
+    return nil
+end
+
+function clickedDeck(x,y,player,deck)
+    local deckX, deckY, deckW, deckH = 900, 360, 42, 60
+    if x > deckX and x < deckX+deckW and y>deckY and y < deckY+deckH and player.turn then
+        player.turn = false
+        player.pulledCard = table.remove(deck)
+        player.pulledCard.faceUp = true
+    end
+    return nil
+end
+
+function clickedPile(x,y,player,discard)
+    if x > discard.x and x < discard.x + Card.WIDTH and y > discard.y and y < discard.y + Card.HEIGHT then
+        if player.pulledCard then
+            discard.value, discard.suit = player.pulledCard.value, player.pulledCard.suit
+            player.pulledCard = nil
+            return discard
+        end
+    end
+    return discard
+end
+
+function handleMousePressed(x, y, button, player, GameTable)
+    if button == 1 then
+        clickedOwnCard(x,y,player)
+
+        clickedDeck(x,y,player,GameTable.Deck)
+
+        GameTable.discard = clickedPile(x,y,player,GameTable.discard)
+
     end
     return nil
 end

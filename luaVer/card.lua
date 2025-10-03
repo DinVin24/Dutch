@@ -29,14 +29,18 @@ function Card.loadSpriteSheet(imagePath)
     end
 end
 
-function Card:new(value, suit)
+function Card:new(value, suit, x, y, faceUp)
     local self = setmetatable({}, Card)
     self.value = value
     self.suit = suit
-    self.faceUp = false
-    self.x = 0
-    self.y = 0
+    self.faceUp = faceUp or false
+    self.x = x or 0
+    self.y = y or 0
     return self
+end
+
+function Card:getPos()
+    return self.x,self.y
 end
 
 function Card:setPosition(x, y)

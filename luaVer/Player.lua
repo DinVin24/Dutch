@@ -11,6 +11,8 @@ function Player:new(name)
     self.dutch = false
     self.cardTimer = 0
     self.seeCards = 2
+    self.turn = true
+    self.pulledCard = nil
     return self
 end
 
@@ -40,8 +42,8 @@ end
 
 function Player:drawHand(startX, startY, spacing)
     spacing = spacing or 50
-    startX = startX or 570
-    startY = startY or 600
+    startX = startX or 540 --CHANGE TO PERCENTAGES
+    startY = startY or 600 -- CHANGE TO PERCENTAGES
     for i, card in ipairs(self.hand) do
         card:setPosition(startX + (i-1)*spacing, startY)
         card:draw()
@@ -66,7 +68,6 @@ function Player:updateCards()
         end
     else
         self.cardTimer = self.cardTimer - 1
-        print(self.cardTimer)
     end
 end
 
