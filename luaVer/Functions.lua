@@ -17,11 +17,11 @@ end
 
 function drawDeck(Deck)
     for i, card in ipairs(Deck) do
-        Deck[i]:draw(900 - i*0.2, 360+i*0.1)-- MAKE THESE PIXELS SCALABLE
+        Deck[i]:draw(925 - i*0.2, 310+i*0.1)-- MAKE THESE PIXELS SCALABLE
     end
 end
 
-function clickedOwnCard(x,y,player,discard)
+function clickedOwnCard(x,y,player,GameTable)
     local clickedCard = player:getCardAt(x, y)
     if clickedCard then
         if player.seeCards > 0 then
@@ -30,13 +30,25 @@ function clickedOwnCard(x,y,player,discard)
             end
             clickedCard.faceUp = true
             if player.cardTimer <= 0 then
-                player.cardTimer = 160
+                player.cardTimer = 200
             end
+            return clickedCard
         end
         if player.pulledCard then
-            discard.value, discard.suit = clickedCard.value, clickedCard.suit
+            GameTable.discard.value, GameTable.discard.suit = clickedCard.value, clickedCard.suit
             clickedCard.value, clickedCard.suit = player.pulledCard.value, player.pulledCard.suit
             player.pulledCard = nil
+            return clickedCard
+        end
+        if player.jumpingIn then
+            if GameTable.discard.value == clickedCard.value then
+                GameTable.discard.value, GameTable.discard.suit = clickedCard.value, clickedCard.suit
+                table.remove(player.hand, indexOf(player.hand, clickedCard))
+            else
+                player:deal(GameTable.Deck, 1)
+            end
+            player.jumpingIn = false
+
         end
         return clickedCard
     end
@@ -44,7 +56,7 @@ function clickedOwnCard(x,y,player,discard)
 end
 
 function clickedDeck(x,y,player,deck)
-    local deckX, deckY, deckW, deckH = 900, 360, 42, 60
+    local deckX, deckY, deckW, deckH = deck[1].x, deck[1].y, Card.WIDTH, Card.HEIGHT
     if x > deckX and x < deckX+deckW and y>deckY and y < deckY+deckH and player.turn then
         player.turn = false
         player.pulledCard = table.remove(deck)
@@ -66,7 +78,7 @@ end
 
 function handleMousePressed(x, y, button, player, GameTable)
     if button == 1 then
-        clickedOwnCard(x,y,player,GameTable.discard)
+        clickedOwnCard(x,y,player,GameTable)
 
         clickedDeck(x,y,player,GameTable.Deck)
 
@@ -74,4 +86,12 @@ function handleMousePressed(x, y, button, player, GameTable)
 
     end
     return nil
+end
+
+function handleKeyPress(key, player)
+    if key == "space" then --jumping in
+        player.jumpingIn = true
+    end
+
+
 end

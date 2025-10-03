@@ -48,9 +48,10 @@ function Card:setPosition(x, y)
     self.y = y
 end
 
-function Card:draw(pozX,pozY)
+function Card:draw(pozX,pozY,scale)
     self.x = pozX or self.x
     self.y = pozY or self.y
+    scale = scale or 2
     if not Card.sprite then
         error("Card sprite not loaded. Call Card.loadSpriteSheet() first!")
     end
@@ -69,7 +70,7 @@ function Card:draw(pozX,pozY)
         quadIndex = 28
     end
 
-    love.graphics.draw(Card.sprite, Card.quads[quadIndex], self.x, self.y)
+    love.graphics.draw(Card.sprite, Card.quads[quadIndex], self.x, self.y, 0, scale, scale)
 end
 
 return Card

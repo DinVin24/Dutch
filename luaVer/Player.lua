@@ -13,6 +13,7 @@ function Player:new(name)
     self.seeCards = 2
     self.turn = true
     self.pulledCard = nil
+    self.jumpingIn = false
     return self
 end
 
@@ -41,9 +42,9 @@ function Player:showHand()
 end
 
 function Player:drawHand(startX, startY, spacing)
-    spacing = spacing or 50
-    startX = startX or 540 --CHANGE TO PERCENTAGES
-    startY = startY or 600 -- CHANGE TO PERCENTAGES
+    spacing = spacing or 100
+    startX = startX or 450 --CHANGE TO PERCENTAGES
+    startY = startY or 590 -- CHANGE TO PERCENTAGES
     for i, card in ipairs(self.hand) do
         card:setPosition(startX + (i-1)*spacing, startY)
         card:draw()
