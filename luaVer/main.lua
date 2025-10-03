@@ -12,7 +12,7 @@ local GameTable = {
 
 
 function love.mousepressed(x, y, button)
-    handleMousePressed(x, y, button, players[1], GameTable)
+    handleMousePressed(x, y, button, players, GameTable)
 end
 
 function love.keypressed(key)
@@ -36,7 +36,7 @@ function love.load()
     shuffle(GameTable.Deck)
 
     table.insert(players, Player:new("Daniel"))
-    --table.insert(players, Player:new("Bogdan"))
+    table.insert(players, Player:new("Bogdan"))
     for _, p in ipairs(players) do
         p:deal(GameTable.Deck, 4)
         p:calculateScore()
@@ -46,17 +46,22 @@ function love.load()
 end
 
 function love.update(dt)
-    players[1]:updateCards()
+    players[1]:updateCards(dt)
+    players[2]:updateCards(dt)
+    players[1]:checkSpecialCards(GameTable.discard)
+    GameTable.discard.used = true
     GameTable.pulled = players[1].pulledCard
 end
 
 function love.draw()
     drawDeck(GameTable.Deck)
     players[1]:drawHand()
+    players[2]:drawHand(450, 20)
     GameTable.discard:draw()
     if GameTable.pulled then
         GameTable.pulled:draw(700,450)
     end
+    players[1]:drawTips()
 end
 
 --draw all cards:

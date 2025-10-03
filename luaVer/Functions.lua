@@ -22,20 +22,28 @@ function drawDeck(Deck)
 end
 
 function clickedOwnCard(x,y,player,GameTable)
+    -- i really don't like how i made this function...
     local clickedCard = player:getCardAt(x, y)
     if clickedCard then
-        if player.seeCards > 0 then
+        if player.seeCards > 0 or player.seeAnyCard > 0 then
             if clickedCard.faceUp == false then
-                player.seeCards = player.seeCards -1
+                if player.seeCards <= 0 then
+                    player.seeAnyCard = player.seeAnyCard - 1
+                else
+                    player.seeCards = player.seeCards - 1
+                end
             end
             clickedCard.faceUp = true
-            if player.cardTimer <= 0 then
-                player.cardTimer = 200
+            if player.cardTimer >= Player.CARDSECONDS  then
+                player.cardTimer = 0
             end
             return clickedCard
         end
         if player.pulledCard then
             GameTable.discard.value, GameTable.discard.suit = clickedCard.value, clickedCard.suit
+            GameTable.discard.used = false
+            --player.discardVal = GameTable.discard.value
+            --print("you discarded a ", player.discardVal)
             clickedCard.value, clickedCard.suit = player.pulledCard.value, player.pulledCard.suit
             player.pulledCard = nil
             return clickedCard
@@ -43,6 +51,9 @@ function clickedOwnCard(x,y,player,GameTable)
         if player.jumpingIn then
             if GameTable.discard.value == clickedCard.value then
                 GameTable.discard.value, GameTable.discard.suit = clickedCard.value, clickedCard.suit
+                GameTable.discard.used = false
+                --player.discardVal = GameTable.discard.value
+                --print("you discarded a ", player.discardVal)
                 table.remove(player.hand, indexOf(player.hand, clickedCard))
             else
                 player:deal(GameTable.Deck, 1)
@@ -53,6 +64,24 @@ function clickedOwnCard(x,y,player,GameTable)
         return clickedCard
     end
     return nil
+end
+
+function clickedOtherCard(x,y,players) 
+    local clickedCard = nil
+    local p = nil
+    for i, player in ipairs(players) do
+        if i ~= 1 then
+            if player:getCardAt(x,y) then
+                clickedCard = player:getCardAt(x,y)
+                p = player
+            end
+        end
+    end
+
+    if clickedCard then
+        players[1]:revealCards(p, clickedCard)
+    end
+
 end
 
 function clickedDeck(x,y,player,deck)
@@ -69,6 +98,9 @@ function clickedPile(x,y,player,discard)
     if x > discard.x and x < discard.x + Card.WIDTH and y > discard.y and y < discard.y + Card.HEIGHT then
         if player.pulledCard then
             discard.value, discard.suit = player.pulledCard.value, player.pulledCard.suit
+            discard.used = false
+            --player.discardVal = discard.value
+            --print("you discarded a ", player.discardVal)
             player.pulledCard = nil
             return discard
         end
@@ -76,13 +108,15 @@ function clickedPile(x,y,player,discard)
     return nil
 end
 
-function handleMousePressed(x, y, button, player, GameTable)
+function handleMousePressed(x, y, button, Players, GameTable)
     if button == 1 then
-        clickedOwnCard(x,y,player,GameTable)
+        clickedOwnCard(x,y,Players[1],GameTable)
+        
+        clickedOtherCard(x,y,Players,GameTable)
 
-        clickedDeck(x,y,player,GameTable.Deck)
+        clickedDeck(x,y,Players[1],GameTable.Deck)
 
-        clickedPile(x,y,player,GameTable.discard)
+        clickedPile(x,y,Players[1],GameTable.discard)
 
     end
     return nil
@@ -92,6 +126,15 @@ function handleKeyPress(key, player)
     if key == "space" then --jumping in
         player.jumpingIn = true
     end
-
-
+    if key == "l" then --funny
+        for i=1, #player.hand do
+            player.hand[i].faceUp = true
+        end
+        player.cardTimer = 0
+    end
+    if key == "p" then --funny
+        for i=1, #player.hand do
+            player.hand[i].faceUp = false
+        end
+    end
 end

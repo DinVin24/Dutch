@@ -2,6 +2,8 @@ local Card = require "Card"
 
 local Player = {}
 Player.__index = Player
+Player.CARDSECONDS = 3
+
 
 function Player:new(name)
     local self = setmetatable({}, Player)
@@ -9,11 +11,13 @@ function Player:new(name)
     self.hand = {}
     self.score = 0
     self.dutch = false
-    self.cardTimer = 0
+    self.cardTimer = Player.CARDSECONDS
     self.seeCards = 2
+    self.seeAnyCard = 0
     self.turn = true
     self.pulledCard = nil
     self.jumpingIn = false
+    self.discardVal = nil
     return self
 end
 
@@ -61,14 +65,44 @@ function Player:getCardAt(x, y)
     return nil
 end
 
-function Player:updateCards()
-    if self.cardTimer <= 0 then
-        self.cardTimer = 0
+function Player:updateCards(dt)
+    if self.cardTimer >= Player.CARDSECONDS then
+        self.cardTimer = Player.CARDSECONDS
         for _, card in ipairs(self.hand) do
             card.faceUp = false
         end
     else
-        self.cardTimer = self.cardTimer - 1
+        self.cardTimer = self.cardTimer + dt
+    end
+end
+
+function Player:drawTips()
+    if self.seeCards > 0 then
+        love.graphics.print("Choose 2 cards to see!", 50, 300)
+    elseif self.jumpingIn then
+        love.graphics.print("Woah, you're jumping in. Choose the matching card from your hand", 50, 300)
+    elseif self.turn and self.pulledCard==nil then
+        love.graphics.print("Pull one card from the deck!", 50, 300)
+    elseif self.pulledCard then
+        love.graphics.print("Choose one card to replace or click the pile to discard it", 50, 300)
+    end
+end
+
+function Player:revealCards(player, card)
+    if self.seeAnyCard > 0 then
+        card.faceUp = true
+        player.cardTimer = 0
+        self.seeAnyCard = self.seeAnyCard - 1
+    end
+end
+
+function Player:checkSpecialCards(card)
+    if card.used == false then
+        print("tryna see")
+        if card.value == "queen" then
+            print("i can see")
+            self.seeAnyCard = self.seeAnyCard + 1
+        end
     end
 end
 

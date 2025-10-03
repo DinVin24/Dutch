@@ -36,6 +36,7 @@ function Card:new(value, suit, x, y, faceUp)
     self.faceUp = faceUp or false
     self.x = x or 0
     self.y = y or 0
+    self.used = false
     return self
 end
 
