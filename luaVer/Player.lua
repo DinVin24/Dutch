@@ -15,7 +15,7 @@ function Player:new(name)
     self.seeCards = 2
     self.seeAnyCard = 0
     self.swap = {false, nil, nil}
-    self.turn = true
+    self.turn = false
     self.pulledCard = nil
     self.jumpingIn = false
     return self
@@ -97,6 +97,7 @@ function Player:revealCards(player, card)
 end
 
 function Player:swapCards(card,players)
+    -- think of a better way to do this 
     if self.swap[1] == true and self.swap[2] == nil then
         self.swap[2] = card
     elseif self.swap[1] == true and self.swap[3] == nil then
@@ -111,10 +112,7 @@ function Player:swapCards(card,players)
                 y = {i, indexOf(players[i].hand,self.swap[3])}
             end
         end
-        players[x[1]].hand[x[2]].value, players[x[1]].hand[x[2]].suit = 
-        players[y[1]].hand[y[2]].value, players[y[1]].hand[y[2]].suit 
-
-
+        players[x[1]].hand[x[2]], players[y[1]].hand[y[2]] = players[y[1]].hand[y[2]], players[x[1]].hand[x[2]]
         self.swap = {false, nil, nil}
     end
 end
@@ -128,6 +126,13 @@ function Player:checkSpecialCards(card)
             print("tryna swap 'em")
             self.swap = {true}
         end
+    end
+end
+
+function Player:checkDutch()
+    if self.turn and self.dutch == false then
+        self.dutch = true
+        self.turn = false
     end
 end
 

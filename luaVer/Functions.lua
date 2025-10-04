@@ -17,13 +17,13 @@ end
 
 function drawDeck(Deck)
     for i, card in ipairs(Deck) do
-        Deck[i]:draw(925 - i*0.2, 310+i*0.1)-- MAKE THESE PIXELS SCALABLE
+        Deck[i]:draw(800 - i*0.2, 310+i*0.1)-- MAKE THESE PIXELS SCALABLE
     end
 end
 
 function clickedOwnCard(x,y,Players,GameTable)
     -- i really don't like how i made this function...
-    player = Players[1]
+    player = GameTable.turn
     local clickedCard = player:getCardAt(x, y)
     if clickedCard then
         if player.seeCards > 0 or player.seeAnyCard > 0 then
@@ -68,7 +68,7 @@ function clickedOwnCard(x,y,Players,GameTable)
     return nil
 end
 
-function clickedOtherCard(x,y,players) 
+function clickedOtherCard(x,y,players,GameTable) 
     local clickedCard = nil
     local p = nil
     for i, player in ipairs(players) do
@@ -81,16 +81,15 @@ function clickedOtherCard(x,y,players)
     end
 
     if clickedCard then
-        players[1]:revealCards(p, clickedCard)
-        players[1]:swapCards(clickedCard, players)
+        GameTable.turn:revealCards(p, clickedCard)
+        GameTable.turn:swapCards(clickedCard, players)
     end
 
 end
 
 function clickedDeck(x,y,player,deck)
     local deckX, deckY, deckW, deckH = deck[1].x, deck[1].y, Card.WIDTH, Card.HEIGHT
-    if x > deckX and x < deckX+deckW and y>deckY and y < deckY+deckH and player.turn then
-        player.turn = false
+    if x > deckX and x < deckX+deckW and y>deckY and y < deckY+deckH and player.turn and player.pulledCard == nil then
         player.pulledCard = table.remove(deck)
         player.pulledCard.faceUp = true
     end
@@ -117,9 +116,9 @@ function handleMousePressed(x, y, button, Players, GameTable)
         
         clickedOtherCard(x,y,Players,GameTable)
 
-        clickedDeck(x,y,Players[1],GameTable.Deck)
+        clickedDeck(x,y,GameTable.turn,GameTable.Deck)
 
-        clickedPile(x,y,Players[1],GameTable.discard)
+        clickedPile(x,y,GameTable.turn,GameTable.discard)
 
     end
     return nil
@@ -128,6 +127,12 @@ end
 function handleKeyPress(key, player)
     if key == "space" then --jumping in
         player.jumpingIn = true
+    end
+    if key == "d" then
+        player:checkDutch()
+    end
+    if key == "c" then -- idk make a better check to finish one's turn
+        player.turn = false
     end
     if key == "l" then --funny
         for i=1, #player.hand do
