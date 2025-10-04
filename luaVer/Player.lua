@@ -8,6 +8,7 @@ Player.CARDSECONDS = 3
 function Player:new(name)
     local self = setmetatable({}, Player)
     self.name = name or "PLAYER"
+    self.isBot = false
     self.hand = {}
     self.score = 0
     self.dutch = false
@@ -17,6 +18,7 @@ function Player:new(name)
     self.swap = {false, nil, nil}
     self.turn = false
     self.pulledCard = nil
+    self.pulled = false
     self.jumpingIn = false
     return self
 end

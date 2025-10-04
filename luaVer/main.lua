@@ -2,6 +2,7 @@ _G.love = require("love")
 Card = require "Card"
 Player = require "Player"
 Functions = require "Functions"
+CPUPlayer = require "CPUPlayer"
 
 local players = {}
 local GameTable = {
@@ -17,7 +18,7 @@ function love.mousepressed(x, y, button)
 end
 
 function love.keypressed(key)
-    handleKeyPress(key, GameTable.turn)
+    handleKeyPress(key, GameTable.turn, players)
 end
 
 function love.load()
@@ -36,21 +37,25 @@ function love.load()
     shuffle(GameTable.Deck)
 
     table.insert(players, Player:new("Emi"))
-    table.insert(players, Player:new("Sebi"))
-    table.insert(players, Player:new("Tibi"))
-    table.insert(players, Player:new("Robi"))
+    table.insert(players, CPUPlayer:new())
     for _, p in ipairs(players) do
         p:deal(GameTable.Deck, 4)
         p:calculateScore()
-        p:showHand()
+        if p.isBot then
+            p:learnCards()
+        end
+        p:showHand()--DEBUG
     end
     GameTable.turn = players[1]
     players[1].turn = true
 end
 
 function love.update(dt)
-    players[1]:updateCards(dt)
+    for _, p in ipairs(players) do
+        p:updateCards(dt)
+    end
     if GameTable.turn.turn == false then
+        GameTable.turn.pulled = false
         if indexOf(players, GameTable.turn) == #players then
             GameTable.turn = players[1]
         else
@@ -58,7 +63,10 @@ function love.update(dt)
         end
         GameTable.turn.turn = true
     end
-    print("Player", indexOf(players,GameTable.turn), "turn")
+    if GameTable.turn.isBot then
+        GameTable.turn:playTurn(GameTable)
+    end
+    players[2]:jumpIn(GameTable)
     GameTable.turn:checkSpecialCards(GameTable.discard)
     GameTable.discard.used = true -- should be updated in the above function...
     GameTable.pulled = GameTable.turn.pulledCard
@@ -87,15 +95,15 @@ function love.draw()
     drawDeck(GameTable.Deck)
     players[1]:drawHand()
     players[2]:drawHand(450, 20)
-    players[3]:drawHand(0,360)
-    players[4]:drawHand(900,360)
+    --players[3]:drawHand(0,360)
+    --players[4]:drawHand(900,360)
     if GameTable.discard.value then
         GameTable.discard:draw()
     end
     if GameTable.pulled then
         GameTable.pulled:draw(700,450)
     end
-    players[1]:drawTips()
+    GameTable.turn:drawTips()
 end
 
 --draw all cards:

@@ -25,8 +25,8 @@ function clickedOwnCard(x,y,Players,GameTable)
     -- i really don't like how i made this function...
     player = GameTable.turn
     local clickedCard = player:getCardAt(x, y)
-    if clickedCard then
-        if player.seeCards > 0 or player.seeAnyCard > 0 then
+    if clickedCard then -- here's the click logic
+        if player.seeCards > 0 or player.seeAnyCard > 0 then -- seeing cards
             if clickedCard.faceUp == false then
                 if player.seeCards <= 0 then
                     player.seeAnyCard = player.seeAnyCard - 1
@@ -40,21 +40,18 @@ function clickedOwnCard(x,y,Players,GameTable)
             end
             return clickedCard
         end
-        if player.pulledCard then
+        if player.pulledCard then -- replacing a card
             GameTable.discard.value, GameTable.discard.suit = clickedCard.value, clickedCard.suit
             GameTable.discard.used = false
-            --player.discardVal = GameTable.discard.value
-            --print("you discarded a ", player.discardVal)
             clickedCard.value, clickedCard.suit = player.pulledCard.value, player.pulledCard.suit
             player.pulledCard = nil
+            player.pulled = true
             return clickedCard
         end
         if player.jumpingIn then
             if GameTable.discard.value == clickedCard.value then
                 GameTable.discard.value, GameTable.discard.suit = clickedCard.value, clickedCard.suit
                 GameTable.discard.used = false
-                --player.discardVal = GameTable.discard.value
-                --print("you discarded a ", player.discardVal)
                 table.remove(player.hand, indexOf(player.hand, clickedCard))
             else
                 player:deal(GameTable.Deck, 1)
@@ -72,7 +69,7 @@ function clickedOtherCard(x,y,players,GameTable)
     local clickedCard = nil
     local p = nil
     for i, player in ipairs(players) do
-        if i ~= 1 then
+        if i ~= 1 then -- if the player is not the user
             if player:getCardAt(x,y) then
                 clickedCard = player:getCardAt(x,y)
                 p = player
@@ -89,7 +86,8 @@ end
 
 function clickedDeck(x,y,player,deck)
     local deckX, deckY, deckW, deckH = deck[1].x, deck[1].y, Card.WIDTH, Card.HEIGHT
-    if x > deckX and x < deckX+deckW and y>deckY and y < deckY+deckH and player.turn and player.pulledCard == nil then
+    if player.isBot == false and player.turn and player.pulled == false and player.pulledCard == nil and 
+    x > deckX and x < deckX+deckW and y>deckY and y < deckY+deckH and player.turn then
         player.pulledCard = table.remove(deck)
         player.pulledCard.faceUp = true
     end
@@ -101,9 +99,8 @@ function clickedPile(x,y,player,discard)
         if player.pulledCard then
             discard.value, discard.suit = player.pulledCard.value, player.pulledCard.suit
             discard.used = false
-            --player.discardVal = discard.value
-            --print("you discarded a ", player.discardVal)
             player.pulledCard = nil
+            player.pulled = true
             return discard
         end
     end
@@ -124,21 +121,23 @@ function handleMousePressed(x, y, button, Players, GameTable)
     return nil
 end
 
-function handleKeyPress(key, player)
+function handleKeyPress(key, player, players)
     if key == "space" then --jumping in
         player.jumpingIn = true
     end
     if key == "d" then
         player:checkDutch()
     end
-    if key == "c" then -- idk make a better check to finish one's turn
+    if key == "c" and player.pulled then -- idk make a better check to finish one's turn
         player.turn = false
     end
     if key == "l" then --funny
-        for i=1, #player.hand do
-            player.hand[i].faceUp = true
+        for _, player in ipairs(players) do
+            for i=1, #player.hand do
+                player.hand[i].faceUp = true
+            end
+            player.cardTimer = 0
         end
-        player.cardTimer = 0
     end
     if key == "p" then --funny
         for i=1, #player.hand do
