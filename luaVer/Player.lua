@@ -11,11 +11,11 @@ function Player:new(name)
     self.isBot = false
     self.hand = {}
     self.score = 0
-    self.dutch = false
+    self.dutch = -1
     self.cardTimer = Player.CARDSECONDS
     self.seeCards = 2
     self.seeAnyCard = 0
-    self.swap = {false, nil, nil}
+    self.swap = {false, nil, nil} -- first value is if swapping, second and third are the cards to swap
     self.turn = false
     self.pulledCard = nil
     self.pulled = false
@@ -106,7 +106,7 @@ function Player:swapCards(card,players)
         self.swap[2] = card
     elseif self.swap[1] == true and self.swap[3] == nil then
         self.swap[3] = card
-        local x, y
+        local x, y -- = {playerIndex, cardIndex }
         print("gonna swap", self.swap[2].value, self.swap[3].value)
         for i=1, #players do
             if indexOf(players[i].hand,self.swap[2]) then
@@ -117,6 +117,18 @@ function Player:swapCards(card,players)
             end
         end
         players[x[1]].hand[x[2]], players[y[1]].hand[y[2]] = players[y[1]].hand[y[2]], players[x[1]].hand[x[2]]
+        if players[x[1]].isBot and players[x[1]] == players[y[1]] then
+            local temp = players[x[1]].knownCards[x[2]]
+            players[x[1]].knownCards[x[2]] = players[y[1]].knownCards[y[2]]
+            players[y[1]].knownCards[y[2]] = temp
+        else
+            if players[x[1]].isBot then
+                players[x[1]].knownCards[x[2]] = "?"
+            end
+            if players[y[1]].isBot then
+                players[y[1]].knownCards[y[2]] = "?"
+            end
+        end
         self.swap = {false, nil, nil}
     end
 end
@@ -134,9 +146,11 @@ function Player:checkSpecialCards(card)
 end
 
 function Player:checkDutch()
-    if self.turn and self.dutch == false then
-        self.dutch = true
+    if self.turn and self.dutch == -1 then
+        self.dutch = 0
         self.turn = false
+    elseif self.turn and self.dutch == 0 then
+        self.dutch = 1
     end
 end
 

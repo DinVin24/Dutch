@@ -30,9 +30,9 @@ function CPUPlayer:pull(GameTable)
     else
         discardedCard = self.pulledCard
         for i, card in ipairs(self.knownCards) do
-            if indexOf(Card.values, card.value) > indexOf(Card.values, self.pulledCard.value) 
+            if card ~= "?" and indexOf(Card.values, card.value) > indexOf(Card.values, self.pulledCard.value) 
                and not (card.value == "king" and card.suit == "diamond") then
-                -- 33: CRASH-> attempt to compare number with nil
+                -- 33: CRASH-> attempt to compare number with nil SHOULD BE FIXED NOW
                 discardedCard = card
                 self.knownCards[i] = self.pulledCard
                 self.hand[i] = self.pulledCard
@@ -49,7 +49,7 @@ function CPUPlayer:pull(GameTable)
     end
 end
 
-function CPUPlayer:calculateScore()
+function CPUPlayer:calculateKnownScore()
     local score = 0
     for i = 1, #self.knownCards do
         if self.knownCards[i] == "?" then -- if it doesn't know all its cards
@@ -61,13 +61,14 @@ function CPUPlayer:calculateScore()
            score = score + indexOf(Card.values, self.knownCards[i].value) 
         end
     end
+    print(score) --DEBUG
     return score
 end
 
 function CPUPlayer:callDutch()
-    if self.dutch == false then
-        if self:calculateScore() <= 7 then
-            self.dutch = true
+    if self.dutch < 1 then
+        if self:calculateKnownScore() <= 7 then
+            self.dutch = self.dutch + 1
             print("CPU called Dutch")
         end
     end

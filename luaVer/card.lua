@@ -53,9 +53,6 @@ function Card:draw(pozX,pozY,scale)
     self.x = pozX or self.x
     self.y = pozY or self.y
     scale = scale or 2
-    if not Card.sprite then
-        error("Card sprite not loaded. Call Card.loadSpriteSheet() first!")
-    end
 
     local xIndex = nil
     local yIndex = nil
