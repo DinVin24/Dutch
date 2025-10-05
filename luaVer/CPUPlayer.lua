@@ -30,15 +30,47 @@ function CPUPlayer:pull(GameTable)
     else
         discardedCard = self.pulledCard
         for i, card in ipairs(self.knownCards) do
-            if indexOf(Card.values, card.value) > indexOf(Card.values, self.pulledCard.value) then
+            if indexOf(Card.values, card.value) > indexOf(Card.values, self.pulledCard.value) 
+               and not (card.value == "king" and card.suit == "diamond") then
+                -- 33: CRASH-> attempt to compare number with nil
                 discardedCard = card
                 self.knownCards[i] = self.pulledCard
                 self.hand[i] = self.pulledCard
+                print("CPU pulled", self.pulledCard.value, self.pulledCard.suit, "and discarded", discardedCard.value, discardedCard.suit) --DEBUG
                 break
             end
         end
     end
     GameTable.discard.value, GameTable.discard.suit = discardedCard.value, discardedCard.suit
+    if discardedCard.value == "queen" then
+        self:useQueen()
+    elseif discardedCard.value == "jack" then
+        self:useJack()
+    end
+end
+
+function CPUPlayer:calculateScore()
+    local score = 0
+    for i = 1, #self.knownCards do
+        if self.knownCards[i] == "?" then -- if it doesn't know all its cards
+            score = 99
+            break
+        end
+        
+        if not (self.knownCards[i].value == "king" and self.knownCards[i].value == "diamond") then
+           score = score + indexOf(Card.values, self.knownCards[i].value) 
+        end
+    end
+    return score
+end
+
+function CPUPlayer:callDutch()
+    if self.dutch == false then
+        if self:calculateScore() <= 7 then
+            self.dutch = true
+            print("CPU called Dutch")
+        end
+    end
 end
 
 function CPUPlayer:jumpIn(GameTable)
@@ -46,21 +78,54 @@ function CPUPlayer:jumpIn(GameTable)
     for i = #self.knownCards, 1, -1 do
         if self.knownCards[i] ~= "?" and self.knownCards[i] ~= nil then
             local card = self.knownCards[i]
-            if card.value == GameTable.discard.value then
+            if card.value == GameTable.discard.value then  --if cards match
                 GameTable.discard.suit = card.suit
+                print("CPU jumped in with", card.value, card.suit) --DEBUG
                 table.remove(self.hand, i)
                 table.remove(self.knownCards, i)
+                if card.value == "queen" then
+                    self:useQueen()
+                elseif card.value == "jack" then
+                    self:useJack()
+                end
             end
         end
     end
 end
 
+function CPUPlayer:useQueen()
+    for i = 1, #self.knownCards do
+        if self.knownCards[i] == "?" then
+            self.knownCards[i] = self.hand[i]
+            print("CPU used queen to learn", self.hand[i].value, self.hand[i].suit) --DEBUG
+            break
+        end
+    end
+    --TODO: upgrade to choose player's card
+end
+
+function CPUPlayer:useJack()
+    -- if it has a card greater than 7, it will swap with one of the player's cards I guess
+    -- if all cards are <= 7, it will just swap 2 random player's cards
+
+    -- later on: what if the player only has 1 card and the CPU has good cards.
+    -- counter a player's jack so the known gets recovered.
+    -- would work great if he keeps track of the player's cards
+    -- or based by the player's confidence. example: player calls dutch, CPU should go for a swap
+end
+
+function CPUPlayer:thinking()
+    -- i'll work on this later. it's for more complex plays
+    -- add logic to how valuable a card is.
+end
+
 function CPUPlayer:playTurn(GameTable)
     -- unfinished stuff: if i swap cpu's card, it doesn't update as a "?"
-    -- can't use jack, can't use queen, can't jump in, can't dutch, doesn't know what king of diamonds is
+    -- add all the functions here so i can call only this in love.update
     print("BOT played the turn")
     self.turn = false
     self:pull(GameTable)
+    self:callDutch()
 end
 
 return CPUPlayer

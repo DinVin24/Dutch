@@ -36,6 +36,7 @@ function Player:calculateScore()
             self.score = self.score + indexOf(Card.values, card.value)
         end
     end
+    return self.score
 end
 
 function Player:showHand()
@@ -100,6 +101,7 @@ end
 
 function Player:swapCards(card,players)
     -- think of a better way to do this 
+    --TODO: change the bot so the card turns into "?" when swapped. he dubs cards now :()
     if self.swap[1] == true and self.swap[2] == nil then
         self.swap[2] = card
     elseif self.swap[1] == true and self.swap[3] == nil then
