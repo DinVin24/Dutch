@@ -1,4 +1,6 @@
 local Card = require "Card"
+--local Animation = require "Animation"
+
 
 local Player = {}
 Player.__index = Player
@@ -91,7 +93,7 @@ function Player:drawTips()
     end
 end
 
-function Player:revealCards(player, card)
+function Player:revealCards(player, card)    
     if self.seeAnyCard > 0 then
         card.faceUp = true
         player.cardTimer = 0
@@ -99,9 +101,60 @@ function Player:revealCards(player, card)
     end
 end
 
+function Player:learnCards(clickedCard)
+    if self.seeCards > 0 or self.seeAnyCard > 0 then
+        if clickedCard.faceUp == false then
+            if self.seeCards <= 0 then
+                self.seeAnyCard = self.seeAnyCard - 1
+            else
+                self.seeCards = self.seeCards - 1
+            end
+        end
+        --clickedCard.faceUp = true
+        Animation.flipCard(clickedCard)  -- ANIMATION TEST
+        if self.cardTimer >= Player.CARDSECONDS  then
+            self.cardTimer = 0
+        end
+        return clickedCard
+    end
+end
+
+function Player:replaceCard(clickedCard, GameTable)
+    if self.pulledCard then -- replacing a card
+        GameTable.discard.value, GameTable.discard.suit = clickedCard.value, clickedCard.suit
+        GameTable.discard.used = false
+        clickedCard.value, clickedCard.suit = self.pulledCard.value, self.pulledCard.suit
+        self.pulledCard = nil
+        self.pulled = true
+        return clickedCard
+    end
+end
+
+function Player:jumpIn(clickedCard, GameTable)
+    if self.jumpingIn then
+        if GameTable.discard.value == clickedCard.value then
+            GameTable.discard.value, GameTable.discard.suit = clickedCard.value, clickedCard.suit
+            GameTable.discard.used = false
+            table.remove(self.hand, indexOf(self.hand, clickedCard))
+        else
+            self:deal(GameTable.Deck, 1)
+        end
+        self.jumpingIn = false
+    end
+end
+
+function Player:discardCard(discard)
+    if self.pulledCard then
+        discard.value, discard.suit = self.pulledCard.value, self.pulledCard.suit
+        discard.used = false
+        self.pulledCard = nil
+        self.pulled = true
+        return discard
+    end
+end
+
 function Player:swapCards(card,players)
     -- think of a better way to do this 
-    --TODO: change the bot so the card turns into "?" when swapped. he dubs cards now :()
     if self.swap[1] == true and self.swap[2] == nil then
         self.swap[2] = card
     elseif self.swap[1] == true and self.swap[3] == nil then
@@ -140,7 +193,7 @@ function Player:checkSpecialCards(card)
         end
         if card.value == "jack" then
             print("tryna swap 'em")
-            self.swap = {true}
+            self.swap = {true, nil, nil}
         end
     end
 end

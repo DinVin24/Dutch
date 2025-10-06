@@ -36,6 +36,10 @@ function Card:new(value, suit, x, y, faceUp)
     self.faceUp = faceUp or false
     self.x = x or 0
     self.y = y or 0
+    self.width = Card.WIDTH
+    self.height = Card.HEIGHT
+    self.scaleX = 2
+    self.scaleY = 2
     self.used = false
     return self
 end
@@ -49,13 +53,13 @@ function Card:setPosition(x, y)
     self.y = y
 end
 
-function Card:draw(pozX,pozY,scale)
+function Card:draw(pozX,pozY,scaleX, scaleY)
     self.x = pozX or self.x
     self.y = pozY or self.y
-    scale = scale or 2
 
     local xIndex = nil
     local yIndex = nil
+    
     for i, v in ipairs(Card.values) do
         if v == self.value then xIndex = i end
     end
@@ -68,7 +72,8 @@ function Card:draw(pozX,pozY,scale)
         quadIndex = 28
     end
 
-    love.graphics.draw(Card.sprite, Card.quads[quadIndex], self.x, self.y, 0, scale, scale)
+    love.graphics.draw(Card.sprite,Card.quads[quadIndex],self.x,self.y,0,self.scaleX,self.scaleY)
+
 end
 
 return Card

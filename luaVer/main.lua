@@ -3,6 +3,7 @@ Card = require "Card"
 Player = require "Player"
 Functions = require "Functions"
 CPUPlayer = require "CPUPlayer"
+Animation = require "Animation"
 
 local background = love.graphics.newImage("PNG/back.jpg")
 local players = {}
@@ -54,9 +55,10 @@ function love.load()
 end
 
 function love.update(dt)
+    Animation.update(dt)   -- ANIMATION TEST
     if not GameTable.over then
         for _, p in ipairs(players) do
-            p:updateCards(dt)
+            p:updateCards(dt) -- ANIMATION TEST
         end
         if GameTable.turn.turn == false then
             GameTable.turn.pulled = false

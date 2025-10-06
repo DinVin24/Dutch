@@ -22,43 +22,12 @@ function drawDeck(Deck)
 end
 
 function clickedOwnCard(x,y,Players,GameTable)
-    -- i really don't like how i made this function...
     player = GameTable.turn
     local clickedCard = player:getCardAt(x, y)
     if clickedCard then -- here's the click logic
-        if player.seeCards > 0 or player.seeAnyCard > 0 then -- seeing cards
-            if clickedCard.faceUp == false then
-                if player.seeCards <= 0 then
-                    player.seeAnyCard = player.seeAnyCard - 1
-                else
-                    player.seeCards = player.seeCards - 1
-                end
-            end
-            clickedCard.faceUp = true
-            if player.cardTimer >= Player.CARDSECONDS  then
-                player.cardTimer = 0
-            end
-            return clickedCard
-        end
-        if player.pulledCard then -- replacing a card
-            GameTable.discard.value, GameTable.discard.suit = clickedCard.value, clickedCard.suit
-            GameTable.discard.used = false
-            clickedCard.value, clickedCard.suit = player.pulledCard.value, player.pulledCard.suit
-            player.pulledCard = nil
-            player.pulled = true
-            return clickedCard
-        end
-        if player.jumpingIn then
-            if GameTable.discard.value == clickedCard.value then
-                GameTable.discard.value, GameTable.discard.suit = clickedCard.value, clickedCard.suit
-                GameTable.discard.used = false
-                table.remove(player.hand, indexOf(player.hand, clickedCard))
-            else
-                player:deal(GameTable.Deck, 1)
-            end
-            player.jumpingIn = false
-
-        end
+        player:learnCards(clickedCard)
+        player:replaceCard(clickedCard, GameTable)
+        player:jumpIn(clickedCard, GameTable)
         player:swapCards(clickedCard, Players)
         return clickedCard
     end
@@ -96,13 +65,7 @@ end
 
 function clickedPile(x,y,player,discard)
     if x > discard.x and x < discard.x + Card.WIDTH and y > discard.y and y < discard.y + Card.HEIGHT then
-        if player.pulledCard then
-            discard.value, discard.suit = player.pulledCard.value, player.pulledCard.suit
-            discard.used = false
-            player.pulledCard = nil
-            player.pulled = true
-            return discard
-        end
+        return player:discardCard(discard)
     end
     return nil
 end
@@ -134,7 +97,8 @@ function handleKeyPress(key, player, players)
     if key == "l" then --funny
         for _, player in ipairs(players) do
             for i=1, #player.hand do
-                player.hand[i].faceUp = true
+                --player.hand[i].faceUp = true
+                Animation.flipCard(player.hand[i])  -- ANIMATION TEST
             end
             player.cardTimer = 0
         end
