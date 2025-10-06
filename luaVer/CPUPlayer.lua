@@ -77,7 +77,8 @@ end
 function CPUPlayer:jumpIn(GameTable)
     -- sometimes crashes for some reason, idk
     for i = #self.knownCards, 1, -1 do
-        if self.knownCards[i] ~= "?" and self.knownCards[i] ~= nil then
+        if self.knownCards[i] ~= "?" and self.knownCards[i] ~= nil
+           and not (self.knownCards[i].value == "king" and self.knownCards[i].suit == "diamond") then
             local card = self.knownCards[i]
             if card.value == GameTable.discard.value then  --if cards match
                 GameTable.discard.suit = card.suit

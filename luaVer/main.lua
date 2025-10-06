@@ -39,6 +39,8 @@ function love.load()
 
     table.insert(players, Player:new("Emi"))
     table.insert(players, CPUPlayer:new())
+    --table.insert(players, CPUPlayer:new())
+    --table.insert(players, CPUPlayer:new())
     for _, p in ipairs(players) do
         p:deal(GameTable.Deck, 4)
         p:calculateScore()
@@ -70,12 +72,12 @@ function love.update(dt)
         end
 
         players[2]:jumpIn(GameTable)
-
+        --players[3]:jumpIn(GameTable)
+        --players[4]:jumpIn(GameTable)
         GameTable.turn:checkSpecialCards(GameTable.discard)
         GameTable.discard.used = true -- should be updated in the above function...
         GameTable.pulled = GameTable.turn.pulledCard
         if GameTable.turn.dutch==1 or #GameTable.turn.hand == 0 then
-            --happens too fast, i need to play one more round before game ends
             GameTable.over = true
             print("GAME OVER!")
         end
