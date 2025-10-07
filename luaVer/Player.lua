@@ -35,8 +35,8 @@ function Player:deal(deck, n)
     spacing = 100
     for i = 1, n do
         table.insert(self.hand, table.remove(deck))
-        self.hand[i].x = self.x + (i-1) * spacing
-        self.hand[i].y = self.y
+        self.hand[#self.hand].x = self.x + (#self.hand-1) * spacing
+        self.hand[#self.hand].y = self.y
     end
 end
 
