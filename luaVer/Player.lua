@@ -5,10 +5,16 @@ local Card = require "Card"
 local Player = {}
 Player.__index = Player
 Player.CARDSECONDS = 3
+p1 = {x=450, y=590}
+p2 = {x=450, y=20}
+p3 = {x=0, y=360}
+p4 = {x=900, y=360}
+positions = {p1, p2, p3, p4}
 
-
-function Player:new(name)
+function Player:new(name, index)
     local self = setmetatable({}, Player)
+    self.x = positions[index].x
+    self.y = positions[index].y
     self.name = name or "PLAYER"
     self.isBot = false
     self.hand = {}
@@ -26,8 +32,11 @@ function Player:new(name)
 end
 
 function Player:deal(deck, n)
+    spacing = 100
     for i = 1, n do
         table.insert(self.hand, table.remove(deck))
+        self.hand[i].x = self.x + (i-1) * spacing
+        self.hand[i].y = self.y
     end
 end
 
@@ -48,16 +57,6 @@ function Player:showHand()
     end
     print("Score: " .. self.score)
     print()
-end
-
-function Player:drawHand(startX, startY, spacing)
-    spacing = spacing or 100
-    startX = startX or 450 --CHANGE TO PERCENTAGES
-    startY = startY or 590 -- CHANGE TO PERCENTAGES
-    for i, card in ipairs(self.hand) do
-        card:setPosition(startX + (i-1)*spacing, startY)
-        card:draw()
-    end
 end
 
 function Player:getCardAt(x, y)

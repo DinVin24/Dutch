@@ -8,7 +8,7 @@ end
 
 function Animation.flipCard(card, duration)
     card.faceUp = not card.faceUp
-    --please make this work...
 end
+
 
 return Animation

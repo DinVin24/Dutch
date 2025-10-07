@@ -4,8 +4,8 @@ local Player = require "Player"
 local CPUPlayer = setmetatable({}, {__index = Player})
 CPUPlayer.__index = CPUPlayer
 
-function CPUPlayer:new(name)
-    local self = setmetatable(Player:new(name or "CPU"), CPUPlayer)
+function CPUPlayer:new(name,index)
+    local self = setmetatable(Player:new(name or "CPU", index), CPUPlayer)
     self.isBot = true
     self.seeCards = 0
     self.knownCards = {"?", "?", "?", "?"}

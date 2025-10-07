@@ -38,10 +38,10 @@ function love.load()
 
     shuffle(GameTable.Deck)
 
-    table.insert(players, Player:new("Emi"))
-    table.insert(players, CPUPlayer:new())
-    --table.insert(players, CPUPlayer:new())
-    --table.insert(players, CPUPlayer:new())
+    table.insert(players, Player:new("Emi",1))
+    table.insert(players, CPUPlayer:new(nil,2))
+    --table.insert(players, CPUPlayer:new(nil,3))
+    --table.insert(players, CPUPlayer:new(nil,4))
     for _, p in ipairs(players) do
         p:deal(GameTable.Deck, 4)
         p:calculateScore()
@@ -94,17 +94,9 @@ end
 
 function love.draw()
     love.graphics.draw(background, 0, 0)
-    drawDeck(GameTable.Deck)
-    players[1]:drawHand()
-    players[2]:drawHand(450, 20)
-    --players[3]:drawHand(0,360)
-    --players[4]:drawHand(900,360)
-    if GameTable.discard.value then
-        GameTable.discard:draw()
-    end
-    if GameTable.pulled then
-        GameTable.pulled:draw(700,450)
-    end
+    drawHands(players)
+    drawTable(GameTable)
+
     GameTable.turn:drawTips()
     if GameTable.over then
         love.graphics.print("GAME OVER!", 400, 260)

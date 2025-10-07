@@ -109,3 +109,24 @@ function handleKeyPress(key, player, players)
         end
     end
 end
+
+function drawHands(Players)
+    for i=1,4 do
+        if Players[i] then
+            for j, card in ipairs(Players[i].hand) do
+                card:draw()
+            end
+        end
+    end
+end
+
+function drawTable(GameTable)
+    drawDeck(GameTable.Deck)
+    if GameTable.discard.value then
+        GameTable.discard:draw()
+    end
+    if GameTable.pulled then
+        GameTable.pulled:draw(700,450)
+    end
+end
+
