@@ -17,7 +17,9 @@ end
 
 function drawDeck(Deck)
     for i, card in ipairs(Deck) do
-        Deck[i]:draw(800 - i*0.2, 310+i*0.1)-- MAKE THESE PIXELS SCALABLE
+        Deck[i].fixedX = 800 - i*0.2 -- MAKE THESE PIXELS SCALABLE
+        Deck[i].fixedY = 310 + i*0.1
+        Deck[i]:draw()
     end
 end
 
@@ -58,7 +60,7 @@ function clickedDeck(x,y,player,deck)
     if player.isBot == false and player.turn and player.pulled == false and player.pulledCard == nil and 
     x > deckX and x < deckX+deckW and y>deckY and y < deckY+deckH and player.turn then
         player.pulledCard = table.remove(deck)
-        player.pulledCard.faceUp = true
+        Animation.flipCard(player.pulledCard)  -- ANIMATION TEST
     end
     return nil
 end
@@ -126,7 +128,7 @@ function drawTable(GameTable)
         GameTable.discard:draw()
     end
     if GameTable.pulled then
-        GameTable.pulled:draw(700,450)
+        GameTable.pulled:draw()
     end
 end
 

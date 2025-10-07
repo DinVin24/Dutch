@@ -27,12 +27,9 @@ function love.load()
     love.graphics.setBackgroundColor( 0.5, 0, 0.52 )
     Card.loadSpriteSheet("PNG/custom.png")
 
-    Card.WIDTH = math.floor(Card.WIDTH*2)
-    Card.HEIGHT = math.floor(Card.HEIGHT*2)
-
     for _, value in ipairs(Card.values) do
         for _, suit in ipairs(Card.suits) do
-            table.insert(GameTable.Deck, Card:new(value, suit))
+            table.insert(GameTable.Deck, Card:new(value, suit,800,310))
         end
     end
 

@@ -36,12 +36,14 @@ function Card:new(value, suit, x, y, faceUp)
     self.faceUp = faceUp or false
     self.x = x or 0
     self.y = y or 0
+    self.fixedX = x or 0
+    self.fixedY = y or 0
     self.width = Card.WIDTH
     self.height = Card.HEIGHT
     self.scaleX = 1
     self.scaleY = 1
     self.used = false
-    self.isFlipping = false
+    self.animating = false
     return self
 end
 
@@ -52,6 +54,8 @@ end
 function Card:setPosition(x, y)
     self.x = x
     self.y = y
+    self.fixedX = x
+    self.fixedY = y
 end
 
 function Card:draw(pozX,pozY,scaleX, scaleY)
@@ -73,8 +77,11 @@ function Card:draw(pozX,pozY,scaleX, scaleY)
         quadIndex = 28
     end
 
-    love.graphics.draw(Card.sprite,Card.quads[quadIndex],self.x,self.y,0,self.scaleX,self.scaleY)
-
+    if self.animating then
+        love.graphics.draw(Card.sprite,Card.quads[quadIndex],self.x,self.y,0,self.scaleX,self.scaleY)
+    else
+        love.graphics.draw(Card.sprite,Card.quads[quadIndex],self.fixedX,self.fixedY,0)
+    end
 end
 
 return Card

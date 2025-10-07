@@ -4,7 +4,7 @@ local Card = require "Card"
 
 local Player = {}
 Player.__index = Player
-Player.CARDSECONDS = 3
+Player.CARDSECONDS = 2
 p1 = {x=450, y=590}
 p2 = {x=450, y=20}
 p3 = {x=0, y=360}
@@ -37,6 +37,9 @@ function Player:deal(deck, n)
         table.insert(self.hand, table.remove(deck))
         self.hand[#self.hand].x = self.x + (#self.hand-1) * spacing
         self.hand[#self.hand].y = self.y
+
+        self.hand[#self.hand].fixedX = self.hand[#self.hand].x
+        self.hand[#self.hand].fixedY = self.hand[#self.hand].y
     end
 end
 
@@ -61,8 +64,10 @@ end
 
 function Player:getCardAt(x, y)
     for _, card in ipairs(self.hand) do
-        if x >= card.x and x <= card.x + Card.WIDTH and
-           y >= card.y and y <= card.y + Card.HEIGHT then
+        if x >= card.fixedX and x <= card.fixedX + Card.WIDTH and
+           y >= card.fixedY and y <= card.fixedY + Card.HEIGHT then
+            print(indexOf(self.hand, card))
+            print(x,y)
             return card
         end
     end
@@ -73,11 +78,12 @@ function Player:updateCards(dt)
     if self.cardTimer >= Player.CARDSECONDS then
         self.cardTimer = Player.CARDSECONDS
         for _, card in ipairs(self.hand) do
-            card.faceUp = false
+            if card.faceUp then Animation.flipCard(card) end
         end
     else
         self.cardTimer = self.cardTimer + dt
     end
+    self:recalculatePositions()
 end
 
 function Player:drawTips()
@@ -94,7 +100,7 @@ end
 
 function Player:revealCards(player, card)    
     if self.seeAnyCard > 0 then
-        card.faceUp = true
+        Animation.flipCard(card)  -- ANIMATION TEST
         player.cardTimer = 0
         self.seeAnyCard = self.seeAnyCard - 1
     end
@@ -203,6 +209,13 @@ function Player:checkDutch()
         self.turn = false
     elseif self.turn and self.dutch == 0 then
         self.dutch = 1
+    end
+end
+
+function Player:recalculatePositions()
+    for i, card in ipairs(self.hand) do
+        card.fixedX = self.x + (i-1) * 100
+        card.fixedY = self.y
     end
 end
 
