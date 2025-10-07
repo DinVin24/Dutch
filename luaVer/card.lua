@@ -8,20 +8,20 @@ Card.values = {"ace", "two", "three", "four", "five", "six",
 Card.suits = {"heart", "diamond", "club", "spade"}
 
 Card.sprite = nil
-Card.SPRITE_WIDTH = 909
-Card.SPRITE_HEIGHT = 259
-Card.WIDTH = 42
-Card.HEIGHT = 60
-Card.hPadding = 11
-Card.vPadding = 2
+Card.SPRITE_WIDTH = 1818 --909
+Card.SPRITE_HEIGHT = 518 --259
+Card.WIDTH = 84 --42 
+Card.HEIGHT = 120 --60
+Card.hPadding = 22 --11
+Card.vPadding = 4 --2
 Card.quads = {}
 
 function Card.loadSpriteSheet(imagePath)
     Card.sprite = love.graphics.newImage(imagePath)
     for row = 0, 3 do
         for col = 0, 13 do
-            local x = col * (Card.WIDTH + 2*Card.hPadding + 1) + Card.hPadding
-            local y = row * (Card.HEIGHT + 2*Card.vPadding + 1) + Card.vPadding
+            local x = col * (Card.WIDTH + 2*Card.hPadding + 2) + Card.hPadding
+            local y = row * (Card.HEIGHT + 2*Card.vPadding + 2) + Card.vPadding
 
             local quad = love.graphics.newQuad(x, y, Card.WIDTH, Card.HEIGHT, Card.SPRITE_WIDTH, Card.SPRITE_HEIGHT)
             table.insert(Card.quads, quad)
@@ -38,9 +38,10 @@ function Card:new(value, suit, x, y, faceUp)
     self.y = y or 0
     self.width = Card.WIDTH
     self.height = Card.HEIGHT
-    self.scaleX = 2
-    self.scaleY = 2
+    self.scaleX = 1
+    self.scaleY = 1
     self.used = false
+    self.isFlipping = false
     return self
 end
 
