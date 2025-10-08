@@ -29,7 +29,7 @@ function love.load()
 
     for _, value in ipairs(Card.values) do
         for _, suit in ipairs(Card.suits) do
-            table.insert(GameTable.Deck, Card:new(value, suit,800,310))
+            table.insert(GameTable.Deck, Card:new(value, suit,800 + (#GameTable.Deck * 0.2), 310 + (#GameTable.Deck * 0.1)))
         end
     end
 

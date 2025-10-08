@@ -216,6 +216,10 @@ function Player:recalculatePositions()
     for i, card in ipairs(self.hand) do
         card.fixedX = self.x + (i-1) * 100
         card.fixedY = self.y
+        if card.animating == false then
+            card.x = card.fixedX
+            card.y = card.fixedY
+        end
     end
 end
 

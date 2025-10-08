@@ -125,9 +125,10 @@ function CPUPlayer:playTurn(GameTable)
     -- unfinished stuff: if i swap cpu's card, it doesn't update as a "?"
     -- add all the functions here so i can call only this in love.update
     print("BOT played the turn")
-    self.turn = false
     self:pull(GameTable)
     self:callDutch()
+    self:recalculatePositions()
+    self.turn = false
 end
 
 return CPUPlayer
