@@ -20,7 +20,7 @@ function love.mousepressed(x, y, button)
 end
 
 function love.keypressed(key)
-    handleKeyPress(key, GameTable.turn, players)
+    handleKeyPress(key, players[1], players)
 end
 
 function love.load()
@@ -37,8 +37,8 @@ function love.load()
 
     table.insert(players, Player:new("Emi",1))
     table.insert(players, CPUPlayer:new(nil,2))
-    --table.insert(players, CPUPlayer:new(nil,3))
-    --table.insert(players, CPUPlayer:new(nil,4))
+    table.insert(players, CPUPlayer:new(nil,3))
+    table.insert(players, CPUPlayer:new(nil,4))
     for _, p in ipairs(players) do
         p:deal(GameTable.Deck, 4)
         p:calculateScore()
@@ -67,12 +67,12 @@ function love.update(dt)
             GameTable.turn.turn = true
         end
         if GameTable.turn.isBot then
-            GameTable.turn:playTurn(GameTable)
+            GameTable.turn:playTurn(GameTable,dt)
         end
 
         players[2]:jumpIn(GameTable)
-        --players[3]:jumpIn(GameTable)
-        --players[4]:jumpIn(GameTable)
+        players[3]:jumpIn(GameTable)
+        players[4]:jumpIn(GameTable)
         GameTable.turn:checkSpecialCards(GameTable.discard)
         GameTable.discard.used = true -- should be updated in the above function...
         GameTable.pulled = GameTable.turn.pulledCard

@@ -24,12 +24,13 @@ function drawDeck(Deck)
 end
 
 function clickedOwnCard(x,y,Players,GameTable)
-    player = GameTable.turn
+    --player = GameTable.turn
+    player = Players[1] -- always the user
     local clickedCard = player:getCardAt(x, y)
     if clickedCard then -- here's the click logic
+        player:jumpIn(clickedCard, GameTable)
         player:learnCards(clickedCard)
         player:replaceCard(clickedCard, GameTable)
-        player:jumpIn(clickedCard, GameTable)
         player:swapCards(clickedCard, Players)
         return clickedCard
     end

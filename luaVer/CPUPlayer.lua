@@ -7,6 +7,7 @@ CPUPlayer.__index = CPUPlayer
 function CPUPlayer:new(name,index)
     local self = setmetatable(Player:new(name or "CPU", index), CPUPlayer)
     self.isBot = true
+    self.thinkingTime = 3
     self.seeCards = 0
     self.knownCards = {"?", "?", "?", "?"}
     return self
@@ -121,14 +122,20 @@ function CPUPlayer:thinking()
     -- add logic to how valuable a card is.
 end
 
-function CPUPlayer:playTurn(GameTable)
+function CPUPlayer:playTurn(GameTable,dt)
     -- unfinished stuff: if i swap cpu's card, it doesn't update as a "?"
     -- add all the functions here so i can call only this in love.update
-    print("BOT played the turn")
-    self:pull(GameTable)
-    self:callDutch()
-    self:recalculatePositions()
-    self.turn = false
+    if self.thinkingTime == 3 then
+        print("BOT played the turn")
+        self:pull(GameTable)
+        self:callDutch()
+        self:recalculatePositions()
+    end
+    self.thinkingTime = self.thinkingTime - dt
+    if self.thinkingTime <= 0 then
+        self.turn = false
+        self.thinkingTime = 3
+    end
 end
 
 return CPUPlayer
