@@ -15,15 +15,12 @@ function Animation.flipCard(card, duration)
     local half = duration / 2
     -- SE STRICA ANEUMATIA CAND FOLOSESC REGINA PE BOT
     -- cred ca trb sa actualizez fixedX si Y
-    -- Shrink X to 0
     flux.to(card, half, { scaleX = 0 })
     :onupdate(function()
         card.x = card.fixedX + (1-card.scaleX) * Card.WIDTH / 2
     end)
     :oncomplete(function()
-        -- swap face
         card.faceUp = not card.faceUp
-        -- grow X back to 1
         flux.to(card, half, { scaleX = 1 })
         :onupdate(function()
             card.x = card.fixedX + (1-card.scaleX) * Card.WIDTH / 2
@@ -34,5 +31,17 @@ function Animation.flipCard(card, duration)
     end)
 end
 
+function Animation.moveCard(card, targetPos, duration, easing)
+    -- targetPos = {x=..., y=...}
+    duration = duration or 0.3
+
+    card.animating = true
+
+    flux.to(card, duration, { x = targetPos.x, y = targetPos.y })
+        :ease("quadinout")
+        :oncomplete(function()
+            card.animating = false
+        end)
+end
 
 return Animation

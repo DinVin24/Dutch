@@ -10,6 +10,7 @@ function CPUPlayer:new(name,index)
     self.thinkingTime = 3
     self.seeCards = 0
     self.knownCards = {"?", "?", "?", "?"}
+    self.jumpTimer = 0
     return self
 end
 
@@ -24,10 +25,18 @@ function CPUPlayer:pull(GameTable)
         discardedCard = self.hand[3]
         self.knownCards[3] = self.pulledCard
         self.hand[3] = self.pulledCard
+        
+        Animation.moveCard(self.hand[3], {x = self.hand[3].fixedX, y = self.hand[3].fixedY})
+        --animation is done automatically by recalculatePositions() idk why but doesn't bother me
+
     elseif self.knownCards[4] == "?" then
         discardedCard = self.hand[4]
         self.knownCards[4] = self.pulledCard
         self.hand[4] = self.pulledCard
+
+        self.hand[4].x, self.hand[4].y = self.pulledCard.x, self.pulledCard.y
+        Animation.moveCard(self.hand[4], {x = self.hand[4].fixedX, y = self.hand[4].fixedY})
+
     else
         discardedCard = self.pulledCard
         for i, card in ipairs(self.knownCards) do
@@ -37,12 +46,20 @@ function CPUPlayer:pull(GameTable)
                 discardedCard = card
                 self.knownCards[i] = self.pulledCard
                 self.hand[i] = self.pulledCard
+
+                self.hand[i].x, self.hand[i].y = self.pulledCard.x, self.pulledCard.y
+                Animation.moveCard(self.hand[i], {x = self.hand[i].fixedX, y = self.hand[i].fixedY})
+
                 print("CPU pulled", self.pulledCard.value, self.pulledCard.suit, "and discarded", discardedCard.value, discardedCard.suit) --DEBUG
                 break
             end
         end
     end
     GameTable.discard.value, GameTable.discard.suit = discardedCard.value, discardedCard.suit
+
+    GameTable.discard.x, GameTable.discard.y = discardedCard.x, discardedCard.y
+    Animation.moveCard(GameTable.discard, {x = GameTable.discard.fixedX, y = GameTable.discard.fixedY})
+
     if discardedCard.value == "queen" then
         self:useQueen()
     elseif discardedCard.value == "jack" then
@@ -58,7 +75,7 @@ function CPUPlayer:calculateKnownScore()
             break
         end
         
-        if not (self.knownCards[i].value == "king" and self.knownCards[i].value == "diamond") then
+        if not (self.knownCards[i].value == "king" and self.knownCards[i].suit == "diamond") then
            score = score + indexOf(Card.values, self.knownCards[i].value) 
         end
     end
@@ -75,7 +92,10 @@ function CPUPlayer:callDutch()
     end
 end
 
-function CPUPlayer:jumpIn(GameTable)
+function CPUPlayer:jumpIn(GameTable,dt)
+    self.jumpTimer = self.jumpTimer + dt
+    if self.jumpTimer < 0.7 then return
+    else self.jumpTimer = 0 end
     -- sometimes crashes for some reason, idk
     for i = #self.knownCards, 1, -1 do
         if self.knownCards[i] ~= "?" and self.knownCards[i] ~= nil
@@ -83,6 +103,11 @@ function CPUPlayer:jumpIn(GameTable)
             local card = self.knownCards[i]
             if card.value == GameTable.discard.value then  --if cards match
                 GameTable.discard.suit = card.suit
+
+                GameTable.discard.x, GameTable.discard.y = self.hand[i].x, self.hand[i].y
+                print(GameTable.discard.x,GameTable.discard.y,GameTable.discard.fixedX,GameTable.discard.fixedY)
+                Animation.moveCard(GameTable.discard,{x = GameTable.discard.fixedX, GameTable.discard.fixedY})
+
                 print("CPU jumped in with", card.value, card.suit) --DEBUG
                 table.remove(self.hand, i)
                 table.remove(self.knownCards, i)
@@ -91,6 +116,7 @@ function CPUPlayer:jumpIn(GameTable)
                 elseif card.value == "jack" then
                     self:useJack()
                 end
+                return
             end
         end
     end
@@ -122,20 +148,25 @@ function CPUPlayer:thinking()
     -- add logic to how valuable a card is.
 end
 
-function CPUPlayer:playTurn(GameTable,dt)
+function CPUPlayer:play(GameTable,dt)
     -- unfinished stuff: if i swap cpu's card, it doesn't update as a "?"
     -- add all the functions here so i can call only this in love.update
-    if self.thinkingTime == 3 then
-        print("BOT played the turn")
-        self:pull(GameTable)
-        self:callDutch()
-        self:recalculatePositions()
+    if self.turn then
+        if self.thinkingTime == 3 then
+            print("BOT played the turn")
+            self:pull(GameTable)
+            self:callDutch()
+        end
+
+        self.thinkingTime = self.thinkingTime - dt
+        if self.thinkingTime <= 0 then
+            self.turn = false
+            self.thinkingTime = 3
+        end
     end
-    self.thinkingTime = self.thinkingTime - dt
-    if self.thinkingTime <= 0 then
-        self.turn = false
-        self.thinkingTime = 3
-    end
+    
+    self:jumpIn(GameTable,dt)
+
 end
 
 return CPUPlayer

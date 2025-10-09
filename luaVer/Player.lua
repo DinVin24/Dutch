@@ -4,12 +4,12 @@ local Card = require "Card"
 
 local Player = {}
 Player.__index = Player
-Player.CARDSECONDS = 2
-p1 = {x=450, y=590}
-p2 = {x=450, y=20}
-p3 = {x=0, y=360}
-p4 = {x=900, y=360}
-positions = {p1, p2, p3, p4}
+Player.CARDSECONDS = 3
+local p1 = {x=450, y=590}
+local p2 = {x=450, y=20}
+local p3 = {x=0, y=360}
+local p4 = {x=900, y=360}
+local positions = {p1, p2, p3, p4}
 
 function Player:new(name, index)
     local self = setmetatable({}, Player)
@@ -20,7 +20,7 @@ function Player:new(name, index)
     self.hand = {}
     self.score = 0
     self.dutch = -1
-    self.cardTimer = Player.CARDSECONDS
+    self.cardTimer = 0
     self.seeCards = 2
     self.seeAnyCard = 0
     self.swap = {false, nil, nil} -- first value is if swapping, second and third are the cards to swap
@@ -74,18 +74,6 @@ function Player:getCardAt(x, y)
     return nil
 end
 
-function Player:updateCards(dt)
-    if self.cardTimer >= Player.CARDSECONDS then
-        self.cardTimer = Player.CARDSECONDS
-        for _, card in ipairs(self.hand) do
-            if card.faceUp then Animation.flipCard(card) end
-        end
-    else
-        self.cardTimer = self.cardTimer + dt
-    end
-    self:recalculatePositions()
-end
-
 function Player:drawTips()
     if self.seeCards > 0 then
         love.graphics.print("Choose 2 cards to see!", 50, 300)
@@ -115,8 +103,9 @@ function Player:learnCards(clickedCard)
                 self.seeCards = self.seeCards - 1
             end
         end
-        --clickedCard.faceUp = true
-        Animation.flipCard(clickedCard)  -- ANIMATION TEST
+        
+        Animation.flipCard(clickedCard)
+
         if self.cardTimer >= Player.CARDSECONDS  then
             self.cardTimer = 0
         end
@@ -128,7 +117,17 @@ function Player:replaceCard(clickedCard, GameTable)
     if self.pulledCard then -- replacing a card
         GameTable.discard.value, GameTable.discard.suit = clickedCard.value, clickedCard.suit
         GameTable.discard.used = false
+
+        GameTable.discard.x, GameTable.discard.y = clickedCard.x, clickedCard.y--animation
+        GameTable.discard.faceUp = false
+        Animation.flipCard(GameTable.discard)
+        Animation.moveCard(GameTable.discard, {x = GameTable.discard.fixedX, y = GameTable.discard.fixedY})
+
         clickedCard.value, clickedCard.suit = self.pulledCard.value, self.pulledCard.suit
+
+        clickedCard.x, clickedCard.y = self.pulledCard.x, self.pulledCard.y
+        Animation.moveCard(clickedCard, {x = clickedCard.fixedX, y = clickedCard.fixedY})
+
         self.pulledCard = nil
         self.pulled = true
         return clickedCard
@@ -139,6 +138,10 @@ function Player:jumpIn(clickedCard, GameTable)
     if self.jumpingIn then
         if GameTable.discard.value == clickedCard.value then
             GameTable.discard.value, GameTable.discard.suit = clickedCard.value, clickedCard.suit
+
+            GameTable.discard.x, GameTable.discard.y = clickedCard.x, clickedCard.y
+            Animation.moveCard(GameTable.discard, {x = GameTable.discard.fixedX, y = GameTable.discard.fixedY})
+
             GameTable.discard.used = false
             table.remove(self.hand, indexOf(self.hand, clickedCard))
         else
@@ -151,6 +154,10 @@ end
 function Player:discardCard(discard)
     if self.pulledCard then
         discard.value, discard.suit = self.pulledCard.value, self.pulledCard.suit
+        
+        discard.x, discard.y = self.pulledCard.x, self.pulledCard.y
+        Animation.moveCard(discard,{x = discard.fixedX,y = discard.fixedY})
+        
         discard.used = false
         self.pulledCard = nil
         self.pulled = true
@@ -192,6 +199,7 @@ function Player:swapCards(card,players)
 end
 
 function Player:checkSpecialCards(card)
+    if not card then return end --safety check
     if card.used == false then
         if card.value == "queen" then
             self.seeAnyCard = self.seeAnyCard + 1
@@ -212,8 +220,25 @@ function Player:checkDutch()
     end
 end
 
+function Player:updateCards(dt)
+    if self.cardTimer >= Player.CARDSECONDS then
+        self.cardTimer = 0
+        for _, card in ipairs(self.hand) do
+            if card.faceUp then Animation.flipCard(card) end
+        end
+    else
+        self.cardTimer = self.cardTimer + dt
+    end
+    self:recalculatePositions()
+end
+
 function Player:recalculatePositions()
     for i, card in ipairs(self.hand) do
+
+        if card.fixedX ~= self.x + (i-1) * 100 or card.fixedY ~= self.y then
+            Animation.moveCard(card, {x = self.x + (i-1)*100, y = self.y})
+        end
+
         card.fixedX = self.x + (i-1) * 100
         card.fixedY = self.y
         if card.animating == false then
@@ -221,6 +246,11 @@ function Player:recalculatePositions()
             card.y = card.fixedY
         end
     end
+end
+
+function Player:endTurn()
+    --put here all the variables that need to reset
+    --functions that need to be called
 end
 
 return Player
