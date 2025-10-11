@@ -8,13 +8,7 @@ Button = require "Button"
 
 local background = love.graphics.newImage("PNG/test3.jpg")
 local players = {}
-local GameTable = {
-    Deck = {},
-    discard = Card:new(nil, nil, 598, 300, true),
-    pulled = nil,
-    over = false,
-    turn = nil
-}
+local GameTable = {}
 local buttons = {}
 
 function love.mousepressed(x, y, button) -- button referes to mouse button
@@ -27,6 +21,15 @@ function love.keypressed(key)
 end
 
 function love.load()
+    GameTable = {
+    Deck = {},
+    discard = Card:new(nil, nil, 598, 300, true),
+    pulled = nil,
+    over = false,
+    turn = nil}
+    players = {}
+    buttons = {}
+
     Button.loadButtons(buttons)
     love.graphics.setBackgroundColor( 0.5, 0, 0.52 )
     Card.loadSpriteSheet("PNG/customtest.png")
@@ -41,8 +44,8 @@ function love.load()
 
     table.insert(players, Player:new("Emi",1))
     table.insert(players, CPUPlayer:new(nil,2))
-    table.insert(players, CPUPlayer:new(nil,3))
-    table.insert(players, CPUPlayer:new(nil,4))
+    --table.insert(players, CPUPlayer:new(nil,3))
+    --table.insert(players, CPUPlayer:new(nil,4))
     for _, p in ipairs(players) do
         p:deal(GameTable.Deck, 4)
         p:calculateScore()
@@ -56,7 +59,7 @@ function love.load()
 end
 
 function love.update(dt)
-    Button.updateAll(buttons,players)
+    Button.updateAll(buttons, GameTable, players)
     Animation.update(dt)   -- ANIMATION TEST
     if not GameTable.over then
         for _, p in ipairs(players) do
@@ -76,8 +79,8 @@ function love.update(dt)
         --end
 
         players[2]:play(GameTable,dt)
-        players[3]:play(GameTable,dt)
-        players[4]:play(GameTable,dt)
+        --players[3]:play(GameTable,dt)
+        --players[4]:play(GameTable,dt)
         
         GameTable.turn:checkSpecialCards(GameTable.discard)
         GameTable.discard.used = true -- should be updated in the above function...

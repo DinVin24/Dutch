@@ -69,6 +69,10 @@ function Button.loadButtons(buttons)
         players[1]:checkDutch()
     end
     ))
+    table.insert(buttons, Button:new(400, 340, 100, 60, {0.388, 0.125, 0.388}, "Reset", 
+    function()
+        love.load()
+    end))
 end
 
 function Button.handleMousePressed(x,y,button,buttons,players)
@@ -77,21 +81,30 @@ function Button.handleMousePressed(x,y,button,buttons,players)
     end
 end
 
-function Button:update(players)
+function Button:update(GameTable, players)
     if self.text == "End Turn" or self.text == "Dutch" then
         if players[1].turn then self.visible = true
-        else self.visible = false 
+        else self.visible = false
         end
     end
+
+    if self.text == "Reset" then
+        if GameTable.over then 
+            self.visible = true
+        else self.visible = false
+        end
+    end
+
     if not self.visible then return end
     local mx, my = love.mouse.getPosition()
     self.hover = self:isHovered(mx,my)
 end
 
-function Button.updateAll(buttons,players)
+function Button.updateAll(buttons, GameTable, players)
     for _,b in ipairs(buttons) do
-        b:update(players)
+        b:update(GameTable, players)
     end
 end
 
 return Button
+
