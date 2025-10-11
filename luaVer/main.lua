@@ -4,8 +4,9 @@ Player = require "Player"
 Functions = require "Functions"
 CPUPlayer = require "CPUPlayer"
 Animation = require "Animation"
+Button = require "Button"
 
-local background = love.graphics.newImage("PNG/back.jpg")
+local background = love.graphics.newImage("PNG/test3.jpg")
 local players = {}
 local GameTable = {
     Deck = {},
@@ -14,9 +15,11 @@ local GameTable = {
     over = false,
     turn = nil
 }
+local buttons = {}
 
-function love.mousepressed(x, y, button)
+function love.mousepressed(x, y, button) -- button referes to mouse button
     handleMousePressed(x, y, button, players, GameTable)
+    Button.handleMousePressed(x,y,button,buttons,players) --buttons refers to the table
 end
 
 function love.keypressed(key)
@@ -24,8 +27,9 @@ function love.keypressed(key)
 end
 
 function love.load()
+    Button.loadButtons(buttons)
     love.graphics.setBackgroundColor( 0.5, 0, 0.52 )
-    Card.loadSpriteSheet("PNG/custom.png")
+    Card.loadSpriteSheet("PNG/customtest.png")
 
     for _, value in ipairs(Card.values) do
         for _, suit in ipairs(Card.suits) do
@@ -37,8 +41,8 @@ function love.load()
 
     table.insert(players, Player:new("Emi",1))
     table.insert(players, CPUPlayer:new(nil,2))
-    --table.insert(players, CPUPlayer:new(nil,3))
-    --table.insert(players, CPUPlayer:new(nil,4))
+    table.insert(players, CPUPlayer:new(nil,3))
+    table.insert(players, CPUPlayer:new(nil,4))
     for _, p in ipairs(players) do
         p:deal(GameTable.Deck, 4)
         p:calculateScore()
@@ -52,6 +56,7 @@ function love.load()
 end
 
 function love.update(dt)
+    Button.updateAll(buttons,players)
     Animation.update(dt)   -- ANIMATION TEST
     if not GameTable.over then
         for _, p in ipairs(players) do
@@ -71,8 +76,9 @@ function love.update(dt)
         --end
 
         players[2]:play(GameTable,dt)
-        --players[3]:jumpIn(GameTable)
-        --players[4]:jumpIn(GameTable)
+        players[3]:play(GameTable,dt)
+        players[4]:play(GameTable,dt)
+        
         GameTable.turn:checkSpecialCards(GameTable.discard)
         GameTable.discard.used = true -- should be updated in the above function...
         GameTable.pulled = GameTable.turn.pulledCard
@@ -93,6 +99,7 @@ function love.draw()
     love.graphics.draw(background, 0, 0)
     drawHands(players)
     drawTable(GameTable)
+    Button.drawAll(buttons)
 
     GameTable.turn:drawTips()
     if GameTable.over then

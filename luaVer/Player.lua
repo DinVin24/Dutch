@@ -75,10 +75,10 @@ function Player:getCardAt(x, y)
 end
 
 function Player:drawTips()
-    if self.seeCards > 0 then
-        love.graphics.print("Choose 2 cards to see!", 50, 300)
-    elseif self.jumpingIn then
+    if self.jumpingIn then
         love.graphics.print("Woah, you're jumping in. Choose the matching card from your hand", 50, 300)
+    elseif self.seeCards > 0  then
+        love.graphics.print("Choose 2 cards to see!", 50, 300)
     elseif self.turn and self.pulledCard==nil then
         love.graphics.print("Pull one card from the deck!", 50, 300)
     elseif self.pulledCard then
@@ -145,6 +145,7 @@ function Player:jumpIn(clickedCard, GameTable)
             GameTable.discard.used = false
             table.remove(self.hand, indexOf(self.hand, clickedCard))
         else
+            Animation.flipCard(clickedCard)
             self:deal(GameTable.Deck, 1)
         end
         self.jumpingIn = false
