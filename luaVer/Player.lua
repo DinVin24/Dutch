@@ -66,8 +66,8 @@ function Player:getCardAt(x, y)
     for _, card in ipairs(self.hand) do
         if x >= card.fixedX and x <= card.fixedX + Card.WIDTH and
            y >= card.fixedY and y <= card.fixedY + Card.HEIGHT then
-            print(indexOf(self.hand, card))
-            print(x,y)
+            --print(indexOf(self.hand, card))
+            --print(x,y)
             return card
         end
     end

@@ -57,7 +57,7 @@ function clickedOtherCard(x,y,players,GameTable)
 end
 
 function clickedDeck(x,y,player,deck)
-    local deckX, deckY, deckW, deckH = deck[1].x, deck[1].y, Card.WIDTH, Card.HEIGHT
+    local deckX, deckY, deckW, deckH = deck[1].fixedX, deck[1].fixedY, Card.WIDTH, Card.HEIGHT
     if player.isBot == false and player.turn and player.pulled == false and player.pulledCard == nil and 
     x > deckX and x < deckX+deckW and y>deckY and y < deckY+deckH and player.turn then
         player.pulledCard = table.remove(deck)
@@ -67,7 +67,7 @@ function clickedDeck(x,y,player,deck)
 end
 
 function clickedPile(x,y,player,discard)
-    if x > discard.x and x < discard.x + Card.WIDTH and y > discard.y and y < discard.y + Card.HEIGHT then
+    if x > discard.fixedX and x < discard.fixedX + Card.WIDTH and y > discard.fixedY and y < discard.fixedY + Card.HEIGHT then
         return player:discardCard(discard)
     end
     return nil

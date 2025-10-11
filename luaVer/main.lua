@@ -11,6 +11,11 @@ local players = {}
 local GameTable = {}
 local buttons = {}
 
+--TODO 
+-- i don't think the bot's cards turn into "?" when i swap 'em
+--make it wait a bit after the last card is discarded
+--also show on screen when someone calls dutch
+
 function love.mousepressed(x, y, button) -- button referes to mouse button
     handleMousePressed(x, y, button, players, GameTable)
     Button.handleMousePressed(x,y,button,buttons,players) --buttons refers to the table
@@ -44,8 +49,9 @@ function love.load()
 
     table.insert(players, Player:new("Emi",1))
     table.insert(players, CPUPlayer:new(nil,2))
-    --table.insert(players, CPUPlayer:new(nil,3))
-    --table.insert(players, CPUPlayer:new(nil,4))
+    table.insert(players, CPUPlayer:new(nil,3))
+    table.insert(players, CPUPlayer:new(nil,4))
+    
     for _, p in ipairs(players) do
         p:deal(GameTable.Deck, 4)
         p:calculateScore()
@@ -79,15 +85,14 @@ function love.update(dt)
         --end
 
         players[2]:play(GameTable,dt)
-        --players[3]:play(GameTable,dt)
-        --players[4]:play(GameTable,dt)
+        players[3]:play(GameTable,dt)
+        players[4]:play(GameTable,dt)
         
         GameTable.turn:checkSpecialCards(GameTable.discard)
         GameTable.discard.used = true -- should be updated in the above function...
         GameTable.pulled = GameTable.turn.pulledCard
         if GameTable.turn.dutch==1 or #GameTable.turn.hand == 0 then
             GameTable.over = true
-            print("GAME OVER!")
         end
     else
         for _, p in ipairs(players) do

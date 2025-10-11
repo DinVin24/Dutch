@@ -40,9 +40,10 @@ function CPUPlayer:pull(GameTable)
     else
         discardedCard = self.pulledCard
         for i, card in ipairs(self.knownCards) do
-            if card ~= "?" and indexOf(Card.values, card.value) > indexOf(Card.values, self.pulledCard.value) 
+            if card ~= "?" and (indexOf(Card.values, card.value) > indexOf(Card.values, self.pulledCard.value) 
+               or (self.pulledCard.value == "king" and self.pulledCard.suit == "diamond"))
                and not (card.value == "king" and card.suit == "diamond") then
-                -- 33: CRASH-> attempt to compare number with nil SHOULD BE FIXED NOW
+
                 discardedCard = card
                 self.knownCards[i] = self.pulledCard
                 self.hand[i] = self.pulledCard
@@ -105,7 +106,6 @@ function CPUPlayer:jumpIn(GameTable,dt)
                 GameTable.discard.suit = card.suit
 
                 GameTable.discard.x, GameTable.discard.y = self.hand[i].x, self.hand[i].y
-                print(GameTable.discard.x,GameTable.discard.y,GameTable.discard.fixedX,GameTable.discard.fixedY)
                 Animation.moveCard(GameTable.discard,{x = GameTable.discard.fixedX, GameTable.discard.fixedY})
 
                 print("CPU jumped in with", card.value, card.suit) --DEBUG
