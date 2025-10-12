@@ -92,7 +92,7 @@ function handleKeyPress(key, player, players)
         player.jumpingIn = true
     end
     if key == "d" then
-        player:checkDutch()
+        player:checkDutch(players)
     end
     if key == "c" and player.pulled then -- idk make a better check to finish one's turn
         player.turn = false

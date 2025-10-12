@@ -15,6 +15,7 @@ local buttons = {}
 -- i don't think the bot's cards turn into "?" when i swap 'em
 --make it wait a bit after the last card is discarded
 --also show on screen when someone calls dutch
+--cant use queen/jack if i jump in
 
 function love.mousepressed(x, y, button) -- button referes to mouse button
     handleMousePressed(x, y, button, players, GameTable)
@@ -84,9 +85,9 @@ function love.update(dt)
         --    GameTable.turn:playTurn(GameTable,dt)
         --end
 
-        players[2]:play(GameTable,dt)
-        players[3]:play(GameTable,dt)
-        players[4]:play(GameTable,dt)
+        players[2]:play(GameTable,players,dt)
+        players[3]:play(GameTable,players,dt)
+        players[4]:play(GameTable,players,dt)
         
         GameTable.turn:checkSpecialCards(GameTable.discard)
         GameTable.discard.used = true -- should be updated in the above function...
@@ -109,7 +110,7 @@ function love.draw()
     drawTable(GameTable)
     Button.drawAll(buttons)
 
-    GameTable.turn:drawTips()
+    GameTable.turn:drawTips(players)
     if GameTable.over then
         love.graphics.print("GAME OVER!", 400, 260)
         if players[1]:calculateScore() < players[2]:calculateScore() then

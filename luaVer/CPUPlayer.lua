@@ -84,7 +84,8 @@ function CPUPlayer:calculateKnownScore()
     return score
 end
 
-function CPUPlayer:callDutch()
+function CPUPlayer:callDutch(players)
+    for i, p in ipairs(players) do if p ~= self and p.dutch > - 1 then return end end
     if self.dutch < 1 then
         if self:calculateKnownScore() <= 7 then
             self.dutch = self.dutch + 1
@@ -148,14 +149,14 @@ function CPUPlayer:thinking()
     -- add logic to how valuable a card is.
 end
 
-function CPUPlayer:play(GameTable,dt)
+function CPUPlayer:play(GameTable,players,dt)
     -- unfinished stuff: if i swap cpu's card, it doesn't update as a "?"
     -- add all the functions here so i can call only this in love.update
     if self.turn then
         if self.thinkingTime == 3 then
             print("BOT played the turn")
             self:pull(GameTable)
-            self:callDutch()
+            self:callDutch(players)
         end
 
         self.thinkingTime = self.thinkingTime - dt

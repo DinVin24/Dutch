@@ -66,7 +66,7 @@ function Button.loadButtons(buttons)
     ))
     table.insert(buttons, Button:new(300,660,120,40,{0.125, 0.388, 0.125}, "Dutch",
     function(players)
-        players[1]:checkDutch()
+        players[1]:checkDutch(players)
     end
     ))
     table.insert(buttons, Button:new(400, 340, 100, 60, {0.388, 0.125, 0.388}, "Reset", 

@@ -74,7 +74,7 @@ function Player:getCardAt(x, y)
     return nil
 end
 
-function Player:drawTips()
+function Player:drawTips(players)
     if self.jumpingIn then
         love.graphics.print("Woah, you're jumping in. Choose the matching card from your hand", 50, 300)
     elseif self.seeCards > 0  then
@@ -83,6 +83,11 @@ function Player:drawTips()
         love.graphics.print("Pull one card from the deck!", 50, 300)
     elseif self.pulledCard then
         love.graphics.print("Choose one card to replace or click the pile to discard it", 50, 300)
+    end
+    for _,p in ipairs(players) do
+        if p.dutch > -1 then
+            love.graphics.print(p.name .. " called Dutch", 50, 350)
+        end
     end
 end
 
@@ -212,7 +217,8 @@ function Player:checkSpecialCards(card)
     end
 end
 
-function Player:checkDutch()
+function Player:checkDutch(players)
+    for i, p in ipairs(players) do if i ~= 1 and p.dutch > - 1 then return end end
     if self.turn and self.dutch == -1 then
         self.dutch = 0
         self.turn = false
